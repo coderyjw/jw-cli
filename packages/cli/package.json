@@ -1,0 +1,27 @@
+{
+  "name": "@yejiwei/cli",
+  "version": "0.0.0",
+  "description": "yejiwei cli",
+  "author": "叶继伟 <yejw6@asiainfo.com>",
+  "homepage": "",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "bin": {
+    "jw-cli": "bin/cli.js"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib",
+    "bin"
+  ],
+  "scripts": {
+    "test": "node ./__tests__/cli.test.js"
+  },
+  "dependencies": {
+    "import-local": "^3.1.0",
+    "npmlog": "^7.0.1"
+  }
+}
