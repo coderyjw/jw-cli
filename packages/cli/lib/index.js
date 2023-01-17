@@ -1,3 +1,21 @@
+const commander = require("commander");
+
+const { program } = commander;
+const pkg = require("../package.json");
 module.exports = function (args) {
-  console.log("index", args);
+  program
+    .name(Object.keys(pkg.bin)[0])
+    .usage("<command> [options]")
+    .version(pkg.version)
+    .option("-d, --debug", "是否开启调试模式", false);
+
+  program
+    .command("init [name]")
+    .description("初始化项目")
+    .option("-f,--force", "是否强制更新", false)
+    .action((name, opts) => {
+      console.log("init...", name, opts);
+    });
+
+  program.parse(process.argv);
 };
