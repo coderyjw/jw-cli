@@ -3,7 +3,10 @@ const createInitCommand = require("@yejiwei/init");
 
 const { program } = commander;
 const pkg = require("../package.json");
+const { log } = require("@yejiwei/utils");
+
 module.exports = function (args) {
+  log.info("version", pkg.version);
   program
     .name(Object.keys(pkg.bin)[0])
     .usage("<command> [options]")

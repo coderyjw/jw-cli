@@ -1,5 +1,5 @@
 const Command = require("@yejiwei/command");
-
+const { log } = require("@yejiwei/utils");
 class InitCommand extends Command {
   get command() {
     return "init [name]";
@@ -14,7 +14,7 @@ class InitCommand extends Command {
   }
 
   action([name, opts]) {
-    console.log("init", name, opts);
+    log.verbose("init", name, opts);
   }
 
   preAction() {
