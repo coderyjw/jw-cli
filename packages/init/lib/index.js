@@ -1,5 +1,5 @@
-const Command = require("@yejiwei/command");
-const { log } = require("@yejiwei/utils");
+import Command from "@yejiwei/command";
+import { log } from "@yejiwei/utils";
 class InitCommand extends Command {
   get command() {
     return "init [name]";
@@ -30,4 +30,4 @@ function Init(instance) {
   return new InitCommand(instance);
 }
 
-module.exports = Init;
+export default Init;

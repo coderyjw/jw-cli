@@ -1,18 +1,22 @@
-const commander = require("commander");
-const semver = require("semver");
-const { log, isDebug } = require("@yejiwei/utils");
-const createInitCommand = require("@yejiwei/init");
+import path from "node:path";
+import { program } from "commander";
+import semver from "semver";
+import chalk from "chalk";
+import fse from "fs-extra";
+import { log, isDebug } from "@yejiwei/utils";
+import createInitCommand from "@yejiwei/init";
+import { dirname } from "dirname-filename-esm";
 
-const pkg = require("../package.json");
-
+const __dirname = dirname(import.meta);
+const pkgPath = path.resolve(__dirname, "../package.json");
+const pkg = fse.readJsonSync(pkgPath);
 const LOWEST_NODE_VERSION = "17.0.0";
-const { program } = commander;
 
 const checkNodeVersion = () => {
   log.verbose("node version", process.version);
   if (!semver.gte(process.version, LOWEST_NODE_VERSION)) {
     throw new Error(
-      `jw-cli 需要安装 ${LOWEST_NODE_VERSION} 以上版本的 Node.js`
+      chalk.red(`jw-cli 需要安装 ${LOWEST_NODE_VERSION} 以上版本的 Node.js`)
     );
   }
 };
@@ -24,13 +28,13 @@ const preAction = () => {
 
 process.on("uncaughtException", (e) => {
   if (isDebug()) {
-    log.error(e);
+    console.log(e);
   } else {
-    log.error(e.message);
+    console.log(e.message);
   }
 });
 
-module.exports = function (args) {
+export default function (args) {
   program
     .name(Object.keys(pkg.bin)[0])
     .usage("<command> [options]")
@@ -43,4 +47,4 @@ module.exports = function (args) {
   createInitCommand(program);
 
   program.parse(process.argv);
-};
+}

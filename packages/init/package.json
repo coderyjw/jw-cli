@@ -19,5 +19,6 @@
   "dependencies": {
     "@yejiwei/command": "^0.0.0",
     "@yejiwei/utils": "^0.0.0"
-  }
+  },
+  "type": "module"
 }

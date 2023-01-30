@@ -1,5 +1,5 @@
-const log = require("./log");
+import log from "./log.js";
 
-module.exports = function isDebug() {
+export default function isDebug() {
   return process.argv.includes("--debug") || process.argv.includes("-d");
-};
+}

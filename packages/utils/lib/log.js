@@ -1,5 +1,5 @@
-const log = require("npmlog");
-const isDebug = require("./isDebug");
+import log from "npmlog";
+import isDebug from "./isDebug.js";
 
 if (isDebug()) {
   log.level = "verbose";
@@ -9,4 +9,4 @@ if (isDebug()) {
 
 // log.heading = "jw-cli";
 
-module.exports = log;
+export default log;
