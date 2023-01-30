@@ -14,7 +14,7 @@ class InitCommand extends Command {
   }
 
   action([name, opts]) {
-    log.verbose("init", name, opts);
+    // log.verbose("init", name, opts);
   }
 
   preAction() {
