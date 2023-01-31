@@ -5,7 +5,7 @@ import { log } from "@yejiwei/utils";
 function getNpmInfo(npmName) {
   // npm API 地址 https://registry.npmjs.org/
   // 淘宝镜像 https://registry.npmmirror.com/
-  const registry = "https://registry.npmmirror.com/";
+  const registry = "https://registry.npmjs.org/";
   const url = urlJoin(registry, npmName);
   return axios.get(url).then((res) => {
     try {

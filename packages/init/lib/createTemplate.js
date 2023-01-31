@@ -8,8 +8,24 @@ const ADD_TYPE_PAGE = "page";
 const TEMP_HOME = ".jw-cli";
 
 const ADD_TEMPLATE = [
-  { name: "vue3 项目模板", value: "template-vue3", npmName: "@yejiwei/template-vue3", version: "1.0.1" },
-  { name: "react18 项目模板", value: "template-react18", npmName: "@yejiwei/template-react18", vrrsion: "1.0.0" },
+  {
+    name: "vue3 项目模板",
+    value: "template-vue3",
+    npmName: "@yejiwei/template-vue3",
+    version: "1.0.1",
+  },
+  {
+    name: "react18 项目模板",
+    value: "template-react18",
+    npmName: "@yejiwei/template-react18",
+    version: "1.0.0",
+  },
+  {
+    name: "vue-element-admin 项目模板",
+    value: "template-vue-element-admin",
+    npmName: "@yejiwei/template-vue-element-admin",
+    version: "1.0.0",
+  },
 ];
 
 const ADD_TYPE = [
