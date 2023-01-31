@@ -1,5 +1,8 @@
 import Command from "@yejiwei/command";
 import { log } from "@yejiwei/utils";
+import createTemplate from "./createTemplate.js";
+import downloadTemplate from "./downloadTemplate.js";
+import installTemplate from "./installTemplate.js";
 class InitCommand extends Command {
   get command() {
     return "init [name]";
@@ -10,11 +13,22 @@ class InitCommand extends Command {
   }
 
   get options() {
-    return [["-f,--force", "是否强制更新", false]];
+    return [
+      ["-f, --force", "是否强制更新", false],
+      ["-t, --type <type>", "项目类型(project/page)"],
+      ["-tp, --template <template>", "模版名称"],
+    ];
   }
 
-  action([name, opts]) {
+  async action([name, opts]) {
     // log.verbose("init", name, opts);
+    // 1. 选择项目模板，生成项目信息
+    const selectedTemplate = await createTemplate(name, opts);
+    log.verbose("template", selectedTemplate.template);
+    // 2. 下载项目模板值缓存目录
+    await downloadTemplate(selectedTemplate);
+    // 3. 安装项目模板至目录
+    await installTemplate(selectedTemplate, opts);
   }
 
   preAction() {
