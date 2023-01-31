@@ -1,4 +1,4 @@
-import { makeList, makeInput } from "@yejiwei/utils";
+import { makeList, makeInput, getLatestVersion } from "@yejiwei/utils";
 import { log } from "@yejiwei/utils";
 
 const ADD_TYPE_PROJECT = "project";
@@ -42,9 +42,9 @@ function getAddTemplate() {
 export default async function createTemplate(name, opts) {
   const addType = await getAddType();
   log.verbose("addType", addType);
-
+  let addName;
   if (addType === ADD_TYPE_PROJECT) {
-    const addName = await getAddName();
+    addName = await getAddName();
     log.verbose("addName", addName);
   }
 
@@ -54,9 +54,14 @@ export default async function createTemplate(name, opts) {
   const selectTemplate = ADD_TEMPLATE.find((_) => _.value === addTemplate);
   log.verbose("selectTemplate", selectTemplate);
 
+  // 获取最新的版本
+  const latestVersion = await getLatestVersion(selectTemplate.npmName);
+  log.verbose("latestVersion", latestVersion);
+  selectTemplate.vrrsion = latestVersion;
+
   return {
     type: addType,
     name: addName,
-    template: selectTemplate
-  }
+    template: selectTemplate,
+  };
 }
