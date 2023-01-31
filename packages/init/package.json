@@ -18,7 +18,10 @@
   },
   "dependencies": {
     "@yejiwei/command": "^0.0.0",
-    "@yejiwei/utils": "^0.0.0"
+    "@yejiwei/utils": "^0.0.0",
+    "fs-extra": "^11.1.0",
+    "ora": "^6.1.2",
+    "path-exists": "^5.0.0"
   },
   "type": "module"
 }

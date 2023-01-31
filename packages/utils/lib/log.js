@@ -7,6 +7,8 @@ if (isDebug()) {
   log.level = "info";
 }
 
-// log.heading = "jw-cli";
+log.heading = "jw-cli";
+
+log.addLevel("success", 2000, { fg: "green", bold: true });
 
 export default log;
