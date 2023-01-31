@@ -52,32 +52,50 @@ function makeTargetPath() {
 }
 
 export default async function createTemplate(name, opts) {
-  const addType = await getAddType();
-  log.verbose("addType", addType);
-  let addName;
-  if (addType === ADD_TYPE_PROJECT) {
-    addName = await getAddName();
-    log.verbose("addName", addName);
+  const { type, template } = opts;
+  // 项目类型，项目名称，项目模版
+  let addType, addName, addTemplate;
+  if (type) {
+    addType = type;
+  } else {
+    addType = await getAddType();
   }
 
-  const addTemplate = await getAddTemplate();
-  log.verbose("addTemplate", addTemplate);
+  log.verbose("addType", addType);
+  if (addType === ADD_TYPE_PROJECT) {
+    if (name) {
+      addName = name;
+    } else {
+      addName = await getAddName();
+    }
+    log.verbose("addName", addName);
 
-  const selectedTemplate = ADD_TEMPLATE.find((_) => _.value === addTemplate);
-  log.verbose("selectedTemplate", selectedTemplate);
+    if (template) {
+      addTemplate = template;
+    } else {
+      addTemplate = await getAddTemplate();
+    }
+    log.verbose("addTemplate", addTemplate);
 
-  // 获取最新的版本
-  const latestVersion = await getLatestVersion(selectedTemplate.npmName);
-  log.verbose("latestVersion", latestVersion);
-  selectedTemplate.version = latestVersion;
+    const selectedTemplate = ADD_TEMPLATE.find((_) => _.value === addTemplate);
+    if (!selectedTemplate) throw new Error(`项目模版 ${template} 不存在！`);
+    log.verbose("selectedTemplate", selectedTemplate);
 
-  const targetPath = makeTargetPath();
-  log.verbose("targetPath", targetPath);
+    // 获取最新的版本
+    const latestVersion = await getLatestVersion(selectedTemplate.npmName);
+    log.verbose("latestVersion", latestVersion);
+    selectedTemplate.version = latestVersion;
 
-  return {
-    type: addType,
-    name: addName,
-    template: selectedTemplate,
-    targetPath,
-  };
+    const targetPath = makeTargetPath();
+    log.verbose("targetPath", targetPath);
+
+    return {
+      type: addType,
+      name: addName,
+      template: selectedTemplate,
+      targetPath,
+    };
+  } else {
+    throw newError(`创建的项目类型 ${addType} 不支持！`);
+  }
 }
