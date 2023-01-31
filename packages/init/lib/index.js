@@ -2,6 +2,7 @@ import Command from "@yejiwei/command";
 import { log } from "@yejiwei/utils";
 import createTemplate from "./createTemplate.js";
 import downloadTemplate from "./downloadTemplate.js";
+import installTemplate from "./installTemplate.js";
 class InitCommand extends Command {
   get command() {
     return "init [name]";
@@ -21,8 +22,9 @@ class InitCommand extends Command {
     const selectedTemplate = await createTemplate(name, opts);
     log.verbose("template", selectedTemplate.template);
     // 2. 下载项目模板值缓存目录
-    downloadTemplate(selectedTemplate);
+    await downloadTemplate(selectedTemplate);
     // 3. 安装项目模板至目录
+    await installTemplate(selectedTemplate, opts);
   }
 
   preAction() {
