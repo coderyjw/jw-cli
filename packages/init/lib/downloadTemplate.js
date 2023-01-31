@@ -21,8 +21,6 @@ async function downloadAddTemplate(targetPath, selectedTemplate) {
   const installCommand = "npm";
   const installArgs = ["install", `${npmName}@${version}`];
   const cwd = targetPath;
-  log.verbose("installArgs", installArgs);
-  log.verbose("cwd", cwd);
   const subprocess = execa(installCommand, installArgs, { cwd });
   await subprocess;
 }
