@@ -18,6 +18,27 @@ const ADD_TYPE = [
   { name: "页面", value: ADD_TYPE_PAGE },
 ];
 
+const GLOBAL_ADD_TEMPLATE = [
+  {
+    name: "vue3 项目模板",
+    value: "template-vue3",
+    npmName: "@yejiwei/template-vue3",
+    version: "1.0.1",
+  },
+  {
+    name: "react18 项目模板",
+    value: "template-react18",
+    npmName: "@yejiwei/template-react18",
+    version: "1.0.0",
+  },
+  {
+    name: "vue-element-admin 项目模板",
+    value: "template-vue-element-admin",
+    npmName: "@yejiwei/template-vue-element-admin",
+    version: "1.0.0",
+  },
+];
+
 // 获取常见类型
 function getAddType() {
   return makeList({
@@ -68,10 +89,9 @@ async function getTemplateFromAPI() {
 }
 
 export default async function createTemplate(name, opts) {
-  const ADD_TEMPLATE = await getTemplateFromAPI();
-  if (!ADD_TEMPLATE) {
-    throw new Error("项目模板不存在！");
-  }
+  let ADD_TEMPLATE;
+  // ADD_TEMPLATE = await getTemplateFromAPI();
+  ADD_TEMPLATE = GLOBAL_ADD_TEMPLATE;
 
   const { type, template } = opts;
   // 项目类型，项目名称，项目模版
