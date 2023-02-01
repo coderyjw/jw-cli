@@ -89,9 +89,8 @@ async function getTemplateFromAPI() {
 }
 
 export default async function createTemplate(name, opts) {
-  let ADD_TEMPLATE;
-  // ADD_TEMPLATE = await getTemplateFromAPI();
-  ADD_TEMPLATE = GLOBAL_ADD_TEMPLATE;
+  // const ADD_TEMPLATE = await getTemplateFromAPI();
+  const ADD_TEMPLATE = GLOBAL_ADD_TEMPLATE;
 
   const { type, template } = opts;
   // 项目类型，项目名称，项目模版
