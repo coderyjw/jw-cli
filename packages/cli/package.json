@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@yejiwei/init": "^0.0.0",
+    "@yejiwei/install": "^0.0.0",
     "@yejiwei/utils": "^0.0.0",
     "chalk": "^5.2.0",
     "commander": "^10.0.0",
