@@ -4,6 +4,7 @@ import { makeList, makeInput, makePassword } from "./inquirer.js";
 import getLatestVersion from "./npm.js";
 import request from "./request.js";
 import Github from "../git/Github.js";
+import { getGitPlatform } from "../git/GitServer.js";
 
 export function printErrorLog(e, type) {
   if (isDebug()) {
@@ -13,4 +14,13 @@ export function printErrorLog(e, type) {
   }
 }
 
-export { log, isDebug, makeList, makeInput, getLatestVersion, request, Github };
+export {
+  log,
+  isDebug,
+  makeList,
+  makeInput,
+  getLatestVersion,
+  request,
+  Github,
+  getGitPlatform,
+};

@@ -1,5 +1,5 @@
 import Command from "@yejiwei/command";
-import { Github } from "@yejiwei/utils";
+import { Github, makeList, getGitPlatform, log } from "@yejiwei/utils";
 class InstallCommand extends Command {
   get command() {
     return "install";
@@ -12,7 +12,29 @@ class InstallCommand extends Command {
   get options() {}
 
   async action(params) {
-    const githubAPI = new Github();
+    let platForm = getGitPlatform();
+
+    if (!platForm) {
+      platForm = await makeList({
+        message: "请选择 Git 平台",
+        choices: [
+          {
+            name: "Github",
+            value: "github",
+          },
+          { name: "Gitee", value: "gitee" },
+        ],
+      });
+    }
+    log.verbose("platform", platForm);
+
+    let gitAPI;
+    if (platForm === "github") {
+      gitAPI = new Github();
+    } else {
+    }
+    gitAPI.savePlatform(platForm);
+    // await gitAPI.init();
   }
 }
 
