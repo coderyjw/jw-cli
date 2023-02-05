@@ -41,7 +41,7 @@ export default class GitServer {
   }
 
   async getToken() {
-    return makePassword({ message: "请输入 token 信息" });
+    return await makePassword({ message: "请输入 token 信息" });
   }
 
   savePlatform(platForm) {
