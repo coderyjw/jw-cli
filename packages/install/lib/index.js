@@ -35,6 +35,15 @@ class InstallCommand extends Command {
     }
     gitAPI.savePlatform(platForm);
     // await gitAPI.init();
+
+    const searchResult = await gitAPI.searchRepositories({
+      q: "vue+language:vue",
+      order: "desc",
+      sort: "stars",
+      per_page: 5,
+      page: 1,
+    });
+    console.log({ searchResult });
   }
 }
 
