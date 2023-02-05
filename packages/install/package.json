@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/coderyjw/jw-cli/issues"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@yejiwei/utils": "^0.0.0"
+  }
 }
