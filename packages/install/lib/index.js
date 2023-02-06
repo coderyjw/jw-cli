@@ -1,5 +1,5 @@
 import Command from "@yejiwei/command";
-import { Github, Gitee, makeList, getGitPlatform, log } from "@yejiwei/utils";
+import { Github, Gitee, makeList, getGitPlatform, log, makeInput } from "@yejiwei/utils";
 class InstallCommand extends Command {
   get command() {
     return "install";
@@ -12,6 +12,12 @@ class InstallCommand extends Command {
   get options() {}
 
   async action(params) {
+    await this.generateGitAPI();
+
+    await this.searchGitAPI();
+  }
+
+  async generateGitAPI() {
     let platForm = getGitPlatform();
 
     if (!platForm) {
@@ -28,30 +34,59 @@ class InstallCommand extends Command {
     }
     log.verbose("platform", platForm);
 
-    let gitAPI;
     if (platForm === "github") {
-      gitAPI = new Github();
+      this.gitAPI = new Github();
     } else if (platForm === "gitee") {
-      gitAPI = new Gitee();
+      this.gitAPI = new Gitee();
     }
-    gitAPI.savePlatform(platForm);
-    await gitAPI.init();
+    this.gitAPI.savePlatform(platForm);
+    await this.gitAPI.init();
+  }
 
-    const searchResult = await gitAPI.searchRepositories({
-      q: "vue+language:vue",
-      order: "desc",
-      language: "JavaScript",
-      sort: "stars_count",
-      per_page: 5,
-      page: 1,
+  /* gitee 的参数 */
+  // q: "vue+language:vue",
+  // order: "desc",
+  // language: "JavaScript",
+  // sort: "stars_count",
+  // per_page: 5,
+  // page: 1,
 
-      // q: "vue+language:vue",
-      // order: "desc",
-      // sort: "stars",
-      // per_page: 5,
-      // page: 1,
+  async searchGitAPI() {
+    // 1. 收集搜索关键词和开发语言
+    const q = await makeInput({
+      message: "请输入搜索关键词",
+      validate(value) {
+        if (value) {
+          return true;
+        } else {
+          return "请输入搜索关键词";
+        }
+      },
     });
-    console.log({ searchResult });
+
+    const language = await makeInput({
+      message: "请输入开发语言",
+    });
+
+    log.verbose("search param：", q, language, this.gitAPI.getPlatform());
+
+    // 2. 根据平台生成搜索参数
+    const platform = this.gitAPI.getPlatform();
+    this.page = 1;
+    let params;
+    if (platform === "github") {
+      // https://api.github.com/search/repositories?q=vue%2Blanguage:vue&order=desc&sort=stars&per_page=5&page=1
+      params = {
+        q: q + (language ? `+language:${language}` : ""),
+        order: "desc",
+        sort: "stars",
+        per_page: 5,
+        page: this.page,
+      };
+    }
+
+    const searchResult = await this.gitAPI.searchRepositories(params);
+    log.verbose("searchResult", searchResult);
   }
 }
 

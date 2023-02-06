@@ -35,7 +35,7 @@ export default class GitServer {
       this.token = await this.getToken();
       fs.writeFileSync(tokenPath, this.token);
     }
-    log.verbose("token~", this.token);
+    log.verbose("token", this.token);
   }
 
   async getToken() {
@@ -44,6 +44,10 @@ export default class GitServer {
 
   savePlatform(platForm) {
     fs.writeFileSync(createPlatformPath(), platForm);
+  }
+
+  getPlatform() {
+    return getGitPlatform()
   }
 }
 
