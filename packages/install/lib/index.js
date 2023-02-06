@@ -89,18 +89,21 @@ class InstallCommand extends Command {
 
     log.verbose("search keywords", this.keywords, platform);
 
+    this.page = 1;
+    this.perPage = 10;
+
     this.doSearch();
   }
 
   async doSearch() {
     // 2. 根据平台生成搜索参数
     const platform = this.gitAPI.getPlatform();
-    this.page = 1;
-    this.perPage = 10;
+
     let params;
-    let count;
+    let count = 0;
     let list;
     let searchResult;
+
     if (platform === "github") {
       // https://api.github.com/search/repositories?q=vue%2Blanguage:vue&order=desc&sort=stars&per_page=5&page=1
       params = {
@@ -115,45 +118,73 @@ class InstallCommand extends Command {
       if (this.mode === SEARCH_MODE_REPO) {
         searchResult = await this.gitAPI.searchRepositories(params);
         list = searchResult.map((item) => ({
-          name: `${item.full_name}(${iten.description})`,
+          name: `${item.full_name}（${item.description}）`,
           value: item.full_name,
         }));
       } else if (this.mode === SEARCH_MODE_CODE) {
         searchResult = await this.gitAPI.searchCode(params);
         list = searchResult.map((item) => ({
-          name: item.repository.full_name + (item.repository.description && `(${item.repository.description})`),
+          name: item.repository.full_name + (item.repository.description && `（${item.repository.description}）`),
           value: item.repository.full_name,
         }));
       }
-      log.verbose("searchResult", searchResult);
+      // log.verbose("searchResult", searchResult);
 
       count = searchResult.total_count; // 整体数据量
-
-      // 判断当前页面，已经是否达到最大页数
-      if (this.page * this.perPage < count) {
-        list.push({
-          name: "下一页",
-          value: NEXT_PAGE,
-        });
-      } else if (this.page > 1) {
-        list.unshift({
-          name: "上一页",
-          value: PREV_PAGE,
-        });
+    } else if (platform === "gitee") {
+      params = {
+        q: this.q,
+        order: "desc",
+        sort: "stars_count",
+        per_page: this.perPage,
+        page: this.page,
+      };
+      if (this.language) {
+        params.language = this.language; // 注意输入格式: JavaScript
       }
+      log.verbose("search params", params);
 
+      searchResult = await this.gitAPI.searchRepositories(params);
+      // log.verbose("searchResult", searchResult);
+
+      count = 99999;
+
+      list = searchResult.map((item) => ({
+        name: `${item.full_name}（${item.description}）`,
+        value: item.full_name,
+      }));
+    }
+
+    // 判断当前页面，已经是否达到最大页数
+    if (this.page * this.perPage < count) {
+      list.push({
+        name: "下一页",
+        value: NEXT_PAGE,
+      });
+    }
+    if (this.page > 1) {
+      list.unshift({
+        name: "上一页",
+        value: PREV_PAGE,
+      });
+    }
+
+    if (count > 0) {
       const selected = await makeList({
-        message: `请选择要下载的项目（共 ${count} 条数据）`,
+        message: platform === "github" ? `请选择要下载的项目（共 ${count} 条数据）` : "请选择要下载的项目",
         choices: list,
       });
 
       if (selected === NEXT_PAGE) {
         this.nextPage();
       } else if (selected === PREV_PAGE) {
-        this.pervPage();
+        this.prevPage();
+      } else {
+        // 下载项目
+        this.selected = selected;
       }
 
-      console.log(selected);
+      log.verbose("selected", selected);
     }
   }
 
