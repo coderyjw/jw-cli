@@ -50,4 +50,8 @@ export default class GitHub extends GitServer {
   searchCode(params) {
     return this.get("search/code", params);
   }
+
+  getTags(fullName) {
+    return this.get(`/repos/${fullName}/tags`);
+  }
 }

@@ -93,6 +93,8 @@ class InstallCommand extends Command {
     this.perPage = 10;
 
     this.doSearch();
+
+    this.selectTags();
   }
 
   async doSearch() {
@@ -156,12 +158,13 @@ class InstallCommand extends Command {
     }
 
     // 判断当前页面，已经是否达到最大页数
-    if (this.page * this.perPage < count) {
+    if ((platform === "github" && this.page * this.perPage < count) || (platform === "gitee" && list.length > 0)) {
       list.push({
         name: "下一页",
         value: NEXT_PAGE,
       });
     }
+
     if (this.page > 1) {
       list.unshift({
         name: "上一页",
@@ -196,6 +199,68 @@ class InstallCommand extends Command {
   async prevPage() {
     this.page--;
     await this.doSearch();
+  }
+
+  async selectTags() {
+    this.tagPage = 1;
+    this.tagPerPage = 100;
+
+    const tagList = await this.doSelectTags();
+
+    if (this.tagList.length > 0) {
+      tagList.push({
+        name: "下一页",
+        value: NEXT_PAGE,
+      });
+    }
+
+    if (this.page > 1) {
+      tagList.unshift({
+        name: "上一页",
+        value: PREV_PAGE,
+      });
+    }
+
+    const tagChoicesList = tagList.map((item) => ({
+      name: item.name,
+      value: item.name,
+    }));
+
+    const selectedTag = makeList({
+      message: "请选择 tag",
+      choices: tagChoicesList,
+    });
+
+    if (selectedTag === PREV_PAGE) {
+      this.prevPage();
+    } else if (selectedTag === NEXT_PAGE) {
+      this.nextPage();
+    } else {
+      // 下载源码
+      this.selectedTag = selectedTag;
+    }
+  }
+
+  async prevTags() {
+    this.tagPage--;
+    this.doSelectTags();
+  }
+
+  async nextTags() {
+    this.tagPage++;
+    this.doSelectTags();
+  }
+
+  async doSelectTags() {
+    let tagList;
+    if (this.gitAPI.getPlatform() === "github") {
+      // github 查询 tag
+      const params = { page: this.tagPage, per_page: this.tagPerPage };
+      tagList = await this.gitAPI.getTags(this.selected, params);
+    } else {
+      // gitee 查询 tag
+    }
+    return tagList;
   }
 }
 
