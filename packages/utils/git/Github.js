@@ -46,4 +46,8 @@ export default class GitHub extends GitServer {
   searchRepositories(params) {
     return this.get("search/repositories", params);
   }
+
+  searchCode(params) {
+    return this.get("search/code", params);
+  }
 }

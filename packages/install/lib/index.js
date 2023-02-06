@@ -3,6 +3,8 @@ import { Github, Gitee, makeList, getGitPlatform, log, makeInput } from "@yejiwe
 
 const PREV_PAGE = "prev_page";
 const NEXT_PAGE = "next_page";
+const SEARCH_MODE_REPO = "search_mode_repo";
+const SEARCH_MODE_CODE = "search_mode_code";
 
 class InstallCommand extends Command {
   get command() {
@@ -56,6 +58,17 @@ class InstallCommand extends Command {
   // page: 1,
 
   async searchGitAPI() {
+    const platform = this.gitAPI.getPlatform();
+    if (platform === "github") {
+      this.mode = await makeList({
+        message: "请选择搜索模式",
+        choices: [
+          { name: "仓库名称", value: SEARCH_MODE_REPO },
+          { name: "源码", value: SEARCH_MODE_CODE },
+        ],
+      });
+    }
+
     // 1. 收集搜索关键词和开发语言
     this.q = await makeInput({
       message: "请输入搜索关键词",
@@ -74,7 +87,7 @@ class InstallCommand extends Command {
 
     this.keywords = this.q + (this.language ? `+language:${this.language}` : "");
 
-    log.verbose("search keywords", this.keywords, this.gitAPI.getPlatform());
+    log.verbose("search keywords", this.keywords, platform);
 
     this.doSearch();
   }
@@ -87,6 +100,7 @@ class InstallCommand extends Command {
     let params;
     let count;
     let list;
+    let searchResult;
     if (platform === "github") {
       // https://api.github.com/search/repositories?q=vue%2Blanguage:vue&order=desc&sort=stars&per_page=5&page=1
       params = {
@@ -98,15 +112,22 @@ class InstallCommand extends Command {
       };
 
       log.verbose("search params", params);
-
-      const searchResult = await this.gitAPI.searchRepositories(params);
+      if (this.mode === SEARCH_MODE_REPO) {
+        searchResult = await this.gitAPI.searchRepositories(params);
+        list = searchResult.map((item) => ({
+          name: `${item.full_name}(${iten.description})`,
+          value: item.full_name,
+        }));
+      } else if (this.mode === SEARCH_MODE_CODE) {
+        searchResult = await this.gitAPI.searchCode(params);
+        list = searchResult.map((item) => ({
+          name: item.repository.full_name + (item.repository.description && `(${item.repository.description})`),
+          value: item.repository.full_name,
+        }));
+      }
       log.verbose("searchResult", searchResult);
 
       count = searchResult.total_count; // 整体数据量
-      list = searchResult.map((item) => ({
-        name: `${item.full_name}(${iten.description})`,
-        value: item.full_name,
-      }));
 
       // 判断当前页面，已经是否达到最大页数
       if (this.page * this.perPage < count) {
