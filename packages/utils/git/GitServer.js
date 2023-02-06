@@ -24,9 +24,7 @@ function getGitPlatform() {
   return null;
 }
 export default class GitServer {
-  constructor() {
-    this.init();
-  }
+  constructor() {}
 
   async init() {
     // 判断 token 是否录入
@@ -37,7 +35,7 @@ export default class GitServer {
       this.token = await this.getToken();
       fs.writeFileSync(tokenPath, this.token);
     }
-    log.verbose("token", this.token);
+    log.verbose("token~", this.token);
   }
 
   async getToken() {

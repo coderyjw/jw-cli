@@ -31,7 +31,7 @@ class InstallCommand extends Command {
     let gitAPI;
     if (platForm === "github") {
       gitAPI = new Github();
-    } else {
+    } else if (platForm === "gitee") {
       gitAPI = new Gitee();
     }
     gitAPI.savePlatform(platForm);
@@ -41,10 +41,15 @@ class InstallCommand extends Command {
       q: "vue+language:vue",
       order: "desc",
       language: "JavaScript",
-      // sort: "stars",
       sort: "stars_count",
       per_page: 5,
       page: 1,
+
+      // q: "vue+language:vue",
+      // order: "desc",
+      // sort: "stars",
+      // per_page: 5,
+      // page: 1,
     });
     console.log({ searchResult });
   }
