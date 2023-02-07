@@ -1,5 +1,6 @@
+import ora from "ora";
 import Command from "@yejiwei/command";
-import { Github, Gitee, makeList, getGitPlatform, log, makeInput } from "@yejiwei/utils";
+import { Github, Gitee, makeList, getGitPlatform, log, makeInput, printErrorLog } from "@yejiwei/utils";
 
 const PREV_PAGE = "prev_page";
 const NEXT_PAGE = "next_page";
@@ -88,6 +89,7 @@ class InstallCommand extends Command {
 
     this.page = 1;
     this.perPage = 10;
+    
 
     await this.doSearch();
 
@@ -113,7 +115,7 @@ class InstallCommand extends Command {
         page: this.page,
       };
 
-      log.verbose("search params", params);
+      log.verbose("search project params", params);
       if (this.mode === SEARCH_MODE_REPO) {
         searchResult = await this.gitAPI.searchRepositories(params);
         list = searchResult.map((item) => ({
@@ -142,7 +144,6 @@ class InstallCommand extends Command {
         params.language = this.language; // 注意输入格式: JavaScript
       }
       log.verbose("search params", params);
-
       searchResult = await this.gitAPI.searchRepositories(params);
       // log.verbose("searchResult", searchResult);
 
@@ -175,11 +176,11 @@ class InstallCommand extends Command {
       });
 
       if (selectedProject === NEXT_PAGE) {
-        this.nextPage();
+        await this.nextPage();
       } else if (selectedProject === PREV_PAGE) {
-        this.prevPage();
+        await this.prevPage();
       } else {
-        // 下载项目
+        // 选中项目 去查询 tag
         this.selectedProject = selectedProject;
       }
     }
@@ -197,64 +198,68 @@ class InstallCommand extends Command {
 
   async selectTags() {
     this.tagPage = 1;
-    this.tagPerPage = 100;
-
+    this.tagPerPage = 30;
     const tagList = await this.doSelectTags();
-
-    if (tagList.length > 0) {
-      tagList.push({
-        name: "下一页",
-        value: NEXT_PAGE,
-      });
-    }
-
-    if (this.page > 1) {
-      tagList.unshift({
-        name: "上一页",
-        value: PREV_PAGE,
-      });
-    }
-
     const tagChoicesList = tagList.map((item) => ({
       name: item.name,
       value: item.name,
     }));
 
+    if (tagChoicesList.length > 0) {
+      tagChoicesList.push({
+        name: "下一页",
+        value: NEXT_PAGE,
+      });
+    }
+
+    if (this.tagPage > 1) {
+      tagChoicesList.unshift({
+        name: "上一页",
+        value: PREV_PAGE,
+      });
+    }
     const selectedTag = await makeList({
       message: "请选择 tag",
       choices: tagChoicesList,
     });
 
     if (selectedTag === PREV_PAGE) {
-      this.prevPage();
+      await this.prevTags();
     } else if (selectedTag === NEXT_PAGE) {
-      this.nextPage();
+      await this.nextTags();
     } else {
-      // 下载源码
+      // 选中 tag
       this.selectedTag = selectedTag;
     }
   }
 
   async doSelectTags() {
     const params = { page: this.tagPage, per_page: this.tagPerPage };
+    log.verbose("search tags params", this.selectedProject, params);
     const tagList = await this.gitAPI.getTags(this.selectedProject, params);
-
-    // log.verbose("tagList", tagList);
     return tagList;
   }
 
   async prevTags() {
     this.tagPage--;
-    this.doSelectTags();
+    await this.selectTags();
   }
 
   async nextTags() {
     this.tagPage++;
-    this.doSelectTags();
+    await this.selectTags();
   }
 
   async downloadRepo() {
-    await this.gitAPI.cloneRepo(this.selectedProject, this.selectedTag);
+    const spinner = ora(`正在下载：${this.selectedProject}（${this.selectedTag}）`).start();
+    try {
+      await this.gitAPI.cloneRepo(this.selectedProject, this.selectedTag);
+      spinner.stop();
+      log.success("下载模板成功！");
+    } catch (err) {
+      spinner.stop();
+      printErrorLog(err);
+    }
   }
 }
 

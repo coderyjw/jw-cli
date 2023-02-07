@@ -25,6 +25,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@yejiwei/utils": "^0.0.0"
+    "@yejiwei/utils": "^0.0.0",
+    "ora": "^6.1.2"
   }
 }

@@ -52,7 +52,6 @@ export default class GitServer {
   }
 
   cloneRepo(fullName, tag) {
-    console.log({ fullName, tag });
     if (tag) {
       return execa("git", ["clone", this.getRepoUrl(fullName), "-b", tag]);
     }
