@@ -1,7 +1,7 @@
 import { GitServer } from "./GitServer.js";
 import axios from "axios";
 
-// token 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
+// token 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
 const BASE_URL = "https://api.github.com";
 export default class GitHub extends GitServer {
   constructor() {
@@ -51,11 +51,11 @@ export default class GitHub extends GitServer {
     return this.get("search/code", params);
   }
 
-  getTags(fullName) {
-    return this.get(`/repos/${fullName}/tags`);
+  getTags(fullName, params) {
+    return this.get(`/repos/${fullName}/tags`, params);
   }
 
   getRepoUrl(fullName) {
-    return `https://github.com/${fullName}.git`
+    return `https://github.com/${fullName}.git`;
   }
 }

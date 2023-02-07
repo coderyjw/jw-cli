@@ -1,6 +1,14 @@
 import ora from "ora";
 import Command from "@yejiwei/command";
-import { Github, Gitee, makeList, getGitPlatform, log, makeInput, printErrorLog } from "@yejiwei/utils";
+import {
+  Github,
+  Gitee,
+  makeList,
+  getGitPlatform,
+  log,
+  makeInput,
+  printErrorLog,
+} from "@yejiwei/utils";
 
 const PREV_PAGE = "prev_page";
 const NEXT_PAGE = "next_page";
@@ -83,13 +91,13 @@ class InstallCommand extends Command {
       message: "请输入开发语言",
     });
 
-    this.keywords = this.q + (this.language ? `+language:${this.language}` : "");
+    this.keywords =
+      this.q + (this.language ? `+language:${this.language}` : "");
 
     log.verbose("search keywords", this.keywords, platform);
 
     this.page = 1;
     this.perPage = 10;
-    
 
     await this.doSearch();
 
@@ -118,14 +126,17 @@ class InstallCommand extends Command {
       log.verbose("search project params", params);
       if (this.mode === SEARCH_MODE_REPO) {
         searchResult = await this.gitAPI.searchRepositories(params);
-        list = searchResult.map((item) => ({
+        list = searchResult.items.map((item) => ({
           name: `${item.full_name}（${item.description}）`,
           value: item.full_name,
         }));
       } else if (this.mode === SEARCH_MODE_CODE) {
         searchResult = await this.gitAPI.searchCode(params);
         list = searchResult.map((item) => ({
-          name: item.repository.full_name + (item.repository.description && `（${item.repository.description}）`),
+          name:
+            item.repository.full_name +
+            (item.repository.description &&
+              `（${item.repository.description}）`),
           value: item.repository.full_name,
         }));
       }
@@ -155,7 +166,10 @@ class InstallCommand extends Command {
       }));
     }
     // 判断当前页面，已经是否达到最大页数
-    if ((platform === "github" && this.page * this.perPage < count) || (platform === "gitee" && list?.length > 0)) {
+    if (
+      (platform === "github" && this.page * this.perPage < count) ||
+      (platform === "gitee" && list?.length > 0)
+    ) {
       list.push({
         name: "下一页",
         value: NEXT_PAGE,
@@ -171,7 +185,10 @@ class InstallCommand extends Command {
 
     if (count > 0) {
       const selectedProject = await makeList({
-        message: platform === "github" ? `请选择要下载的项目（共 ${count} 条数据）` : "请选择要下载的项目",
+        message:
+          platform === "github"
+            ? `请选择要下载的项目（共 ${count} 条数据）`
+            : "请选择要下载的项目",
         choices: list,
       });
 
@@ -197,61 +214,74 @@ class InstallCommand extends Command {
   }
 
   async selectTags() {
+    let tagsList;
     this.tagPage = 1;
     this.tagPerPage = 30;
-    const tagList = await this.doSelectTags();
-    const tagChoicesList = tagList.map((item) => ({
-      name: item.name,
-      value: item.name,
-    }));
+    tagsList = await this.doSelectTags();
+  }
 
-    if (tagChoicesList.length > 0) {
-      tagChoicesList.push({
-        name: "下一页",
-        value: NEXT_PAGE,
-      });
-    }
-
-    if (this.tagPage > 1) {
-      tagChoicesList.unshift({
-        name: "上一页",
-        value: PREV_PAGE,
-      });
+  async doSelectTags() {
+    const platform = this.gitAPI.getPlatform();
+    let tagsListChoices = [];
+    if (platform === "github") {
+      const params = {
+        page: this.tagPage,
+        per_page: this.tagPerPage,
+      };
+      log.verbose("search tags params", this.selectedProject, params);
+      const tagsList = await this.gitAPI.getTags(this.selectedProject, params);
+      tagsListChoices = tagsList.map((item) => ({
+        name: item.name,
+        value: item.name,
+      }));
+      if (tagsList.length > 0) {
+        tagsListChoices.push({
+          name: "下一页",
+          value: NEXT_PAGE,
+        });
+      }
+      if (this.tagPage > 1) {
+        tagsListChoices.unshift({
+          name: "上一页",
+          value: PREV_PAGE,
+        });
+      }
+    } else {
+      const tagsList = await this.gitAPI.getTags(this.selectedProject);
+      log.verbose("search tags params", this.selectedProject);
+      tagsListChoices = tagsList.map((item) => ({
+        name: item.name,
+        value: item.name,
+      }));
     }
     const selectedTag = await makeList({
-      message: "请选择 tag",
-      choices: tagChoicesList,
+      message: "请选择tag",
+      choices: tagsListChoices,
     });
 
-    if (selectedTag === PREV_PAGE) {
-      await this.prevTags();
-    } else if (selectedTag === NEXT_PAGE) {
+    if (selectedTag === NEXT_PAGE) {
       await this.nextTags();
+    } else if (selectedTag === PREV_PAGE) {
+      await this.prevTags();
     } else {
-      // 选中 tag
       this.selectedTag = selectedTag;
     }
   }
 
-  async doSelectTags() {
-    const params = { page: this.tagPage, per_page: this.tagPerPage };
-    log.verbose("search tags params", this.selectedProject, params);
-    const tagList = await this.gitAPI.getTags(this.selectedProject, params);
-    return tagList;
-  }
-
   async prevTags() {
     this.tagPage--;
-    await this.selectTags();
+    await this.doSelectTags();
   }
 
   async nextTags() {
     this.tagPage++;
-    await this.selectTags();
+    await this.doSelectTags();
   }
 
   async downloadRepo() {
-    const spinner = ora(`正在下载：${this.selectedProject}（${this.selectedTag}）`).start();
+    const spinner = ora(
+      `正在下载：${this.selectedProject}（${this.selectedTag}）`
+    ).start();
     try {
       await this.gitAPI.cloneRepo(this.selectedProject, this.selectedTag);
       spinner.stop();
