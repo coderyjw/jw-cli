@@ -21,6 +21,9 @@ class InstallCommand extends Command {
     await this.generateGitAPI();
 
     await this.searchGitAPI();
+
+    log.verbose("selectedProject", this.selectedProject);
+    log.verbose("selectedTag", this.selectedTag);
   }
 
   async generateGitAPI() {
@@ -48,14 +51,6 @@ class InstallCommand extends Command {
     this.gitAPI.savePlatform(platForm);
     await this.gitAPI.init();
   }
-
-  /* gitee 的参数 */
-  // q: "vue+language:vue",
-  // order: "desc",
-  // language: "JavaScript",
-  // sort: "stars_count",
-  // per_page: 5,
-  // page: 1,
 
   async searchGitAPI() {
     const platform = this.gitAPI.getPlatform();
@@ -92,9 +87,9 @@ class InstallCommand extends Command {
     this.page = 1;
     this.perPage = 10;
 
-    this.doSearch();
+    await this.doSearch();
 
-    this.selectTags();
+    await this.selectTags();
   }
 
   async doSearch() {
@@ -156,9 +151,8 @@ class InstallCommand extends Command {
         value: item.full_name,
       }));
     }
-
     // 判断当前页面，已经是否达到最大页数
-    if ((platform === "github" && this.page * this.perPage < count) || (platform === "gitee" && list.length > 0)) {
+    if ((platform === "github" && this.page * this.perPage < count) || (platform === "gitee" && list?.length > 0)) {
       list.push({
         name: "下一页",
         value: NEXT_PAGE,
@@ -173,21 +167,19 @@ class InstallCommand extends Command {
     }
 
     if (count > 0) {
-      const selected = await makeList({
+      const selectedProject = await makeList({
         message: platform === "github" ? `请选择要下载的项目（共 ${count} 条数据）` : "请选择要下载的项目",
         choices: list,
       });
 
-      if (selected === NEXT_PAGE) {
+      if (selectedProject === NEXT_PAGE) {
         this.nextPage();
-      } else if (selected === PREV_PAGE) {
+      } else if (selectedProject === PREV_PAGE) {
         this.prevPage();
       } else {
         // 下载项目
-        this.selected = selected;
+        this.selectedProject = selectedProject;
       }
-
-      log.verbose("selected", selected);
     }
   }
 
@@ -207,7 +199,7 @@ class InstallCommand extends Command {
 
     const tagList = await this.doSelectTags();
 
-    if (this.tagList.length > 0) {
+    if (tagList.length > 0) {
       tagList.push({
         name: "下一页",
         value: NEXT_PAGE,
@@ -226,7 +218,7 @@ class InstallCommand extends Command {
       value: item.name,
     }));
 
-    const selectedTag = makeList({
+    const selectedTag = await makeList({
       message: "请选择 tag",
       choices: tagChoicesList,
     });
@@ -252,14 +244,10 @@ class InstallCommand extends Command {
   }
 
   async doSelectTags() {
-    let tagList;
-    if (this.gitAPI.getPlatform() === "github") {
-      // github 查询 tag
-      const params = { page: this.tagPage, per_page: this.tagPerPage };
-      tagList = await this.gitAPI.getTags(this.selected, params);
-    } else {
-      // gitee 查询 tag
-    }
+    const params = { page: this.tagPage, per_page: this.tagPerPage };
+    const tagList = await this.gitAPI.getTags(this.selectedProject, params);
+
+    // log.verbose("tagList", tagList);
     return tagList;
   }
 }
