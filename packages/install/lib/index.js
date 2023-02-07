@@ -24,6 +24,8 @@ class InstallCommand extends Command {
 
     log.verbose("selectedProject", this.selectedProject);
     log.verbose("selectedTag", this.selectedTag);
+
+    await this.downloadRepo();
   }
 
   async generateGitAPI() {
@@ -233,6 +235,14 @@ class InstallCommand extends Command {
     }
   }
 
+  async doSelectTags() {
+    const params = { page: this.tagPage, per_page: this.tagPerPage };
+    const tagList = await this.gitAPI.getTags(this.selectedProject, params);
+
+    // log.verbose("tagList", tagList);
+    return tagList;
+  }
+
   async prevTags() {
     this.tagPage--;
     this.doSelectTags();
@@ -243,12 +253,8 @@ class InstallCommand extends Command {
     this.doSelectTags();
   }
 
-  async doSelectTags() {
-    const params = { page: this.tagPage, per_page: this.tagPerPage };
-    const tagList = await this.gitAPI.getTags(this.selectedProject, params);
-
-    // log.verbose("tagList", tagList);
-    return tagList;
+  async downloadRepo() {
+    await this.gitAPI.cloneRepo(this.selectedProject, this.selectedTag);
   }
 }
 

@@ -54,4 +54,8 @@ export default class GitHub extends GitServer {
   getTags(fullName) {
     return this.get(`/repos/${fullName}/tags`);
   }
+
+  getRepoUrl(fullName) {
+    return `https://github.com/${fullName}.git`
+  }
 }

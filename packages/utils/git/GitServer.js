@@ -5,6 +5,7 @@ import { pathExistsSync } from "path-exists";
 import fse from "fs-extra";
 import { makePassword } from "../lib/inquirer.js";
 import { log } from "../lib/index.js";
+import { execa } from "execa";
 
 const TEMP_HOME = ".jw-cli";
 const TEMP_TOKEN = ".token";
@@ -47,7 +48,15 @@ export default class GitServer {
   }
 
   getPlatform() {
-    return getGitPlatform()
+    return getGitPlatform();
+  }
+
+  cloneRepo(fullName, tag) {
+    console.log({ fullName, tag });
+    if (tag) {
+      return execa("git", ["clone", this.getRepoUrl(fullName), "-b", tag]);
+    }
+    return execa("git", ["clone", this.getRepoUrl(fullName)]);
   }
 }
 
