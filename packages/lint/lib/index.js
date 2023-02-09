@@ -1,6 +1,12 @@
 import { ESLint } from "eslint";
 import ora from "ora";
 import { execa } from "execa";
+import jest from "jest";
+import path from "node:path";
+import fs from "fs";
+import fse from "fs-extra";
+
+import { makeList } from "@yejiwei/utils";
 
 import Command from "@yejiwei/command";
 import { log, printErrorLog } from "@yejiwei/utils";
@@ -22,6 +28,7 @@ class LintCommand extends Command {
   async action([name, opts]) {
     log.verbose("lint");
     await this.eslint();
+    await this.autoTest();
   }
 
   preAction() {
@@ -84,6 +91,54 @@ class LintCommand extends Command {
         return resultText.match(errors)[0].match(/[0-9]+/)[0];
       default:
         return null;
+    }
+  }
+
+  async autoTest() {
+    // 执行自动化测试之前，让用户选择采用哪种方法进行测试
+    const cwd = process.cwd();
+    let testMode;
+    const jwConfigFile = path.resolve(cwd, ".jw-cli");
+    let config;
+    if (fs.existsSync(jwConfigFile)) {
+      config = fse.readJsonSync(jwConfigFile);
+      testMode = config.testMode;
+      if (!testMode) {
+        testMode = await makeList({
+          message: "请选择自动化测试方法",
+          choices: [
+            { name: "jest", value: "jest" },
+            { name: "mocha", value: "mocha" },
+          ],
+        });
+        config.testMode = testMode;
+        fse.writeJsonSync(jwConfigFile, config);
+      }
+    } else {
+      testMode = await makeList({
+        message: "请选择自动化测试方法",
+        choices: [
+          { name: "jest", value: "jest" },
+          { name: "mocha", value: "mocha" },
+        ],
+      });
+      fse.writeJsonSync(jwConfigFile, {
+        testMode,
+      });
+    }
+    if (testMode === "jest") {
+      // 2. jest
+      log.info("自动执行jest测试");
+      await jest.run("test");
+      log.success("jest测试执行完毕");
+    } else {
+      // 3. mocha
+      log.info("自动执行mocha测试");
+      const mochaInstance = new Mocha();
+      mochaInstance.addFile(path.resolve(cwd, "__tests__/mocha_test.js"));
+      mochaInstance.run(() => {
+        log.success("mocha测试执行完毕");
+      });
     }
   }
 }
