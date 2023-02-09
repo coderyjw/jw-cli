@@ -14,6 +14,22 @@ function createTokenPath() {
   return path.resolve(homedir(), TEMP_HOME, TEMP_TOKEN);
 }
 
+function getProjectPath(cwd, fullName) {
+  const projectName = fullName.split("/")[1]; // vuejs/vue => vue
+  const projectPath = path.resolve(cwd, projectName);
+  return projectPath;
+}
+
+function getPackageJson(cwd, fullName) {
+  const projectPath = getProjectPath(cwd, fullName);
+  const pkgPath = path.resolve(projectPath, "package.json");
+  if (pathExistsSync(pkgPath)) {
+    return fse.readJsonSync(pkgPath);
+  } else {
+    return null;
+  }
+}
+
 function createPlatformPath() {
   return path.resolve(homedir(), TEMP_HOME, TEMP_PLATFORM);
 }
@@ -24,6 +40,7 @@ function getGitPlatform() {
   }
   return null;
 }
+
 export default class GitServer {
   constructor() {}
 
@@ -59,8 +76,7 @@ export default class GitServer {
   }
 
   installDependencies(cwd, fullName, tag) {
-    const projectName = fullName.split("/")[1]; // vuejs/vue => vue
-    const projectPath = path.resolve(cwd, projectName);
+    const projectPath = getProjectPath(cwd, fullName);
     if (pathExistsSync(projectPath)) {
       return execa(
         "npm",
@@ -70,6 +86,33 @@ export default class GitServer {
     }
 
     return null;
+  }
+
+  runRepo(cwd, fullName) {
+    const projectPath = getProjectPath(cwd, fullName);
+    const pkg = getPackageJson(cwd, fullName);
+    if (pkg) {
+      const { scripts } = pkg;
+      if (scripts && scripts.dev) {
+        return execa("npm", ["run", "dev"], {
+          cwd: projectPath,
+          stdout: "inherit",
+        });
+      } else if (scripts && scripts.serve) {
+        return execa("npm", ["run", "serve"], {
+          cwd: projectPath,
+          stdout: "inherit",
+        });
+      } else if (scripts && scripts.start) {
+        return execa("npm", ["run", "start"], {
+          cwd: projectPath,
+          stdout: "inherit",
+        });
+      } else {
+        log.warn("未找到启动命令");
+      }
+    } else {
+    }
   }
 }
 

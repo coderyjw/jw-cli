@@ -289,6 +289,7 @@ class InstallCommand extends Command {
         `下载模板成功：${this.selectedProject}（${this.selectedTag}）`
       );
       await this.installDependencies();
+      await this.runRepo();
     } catch (err) {
       spinner.stop();
       printErrorLog(err);
@@ -317,6 +318,10 @@ class InstallCommand extends Command {
       spinner.stop();
       printErrorLog(err);
     }
+  }
+
+  async runRepo() {
+    await this.gitAPI.runRepo(process.cwd(), this.selectedProject);
   }
 }
 
