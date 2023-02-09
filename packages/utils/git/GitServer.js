@@ -57,6 +57,20 @@ export default class GitServer {
     }
     return execa("git", ["clone", this.getRepoUrl(fullName)]);
   }
+
+  installDependencies(cwd, fullName, tag) {
+    const projectName = fullName.split("/")[1]; // vuejs/vue => vue
+    const projectPath = path.resolve(cwd, projectName);
+    if (pathExistsSync(projectPath)) {
+      return execa(
+        "npm",
+        ["install", "--registry=https://registry.npmmirror.com"],
+        { cwd: projectPath }
+      );
+    }
+
+    return null;
+  }
 }
 
 export { getGitPlatform, GitServer };
