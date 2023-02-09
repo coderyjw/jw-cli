@@ -8,10 +8,16 @@ import { log } from "../lib/index.js";
 import { execa } from "execa";
 
 const TEMP_HOME = ".jw-cli";
-const TEMP_TOKEN = ".token";
-const TEMP_PLATFORM = ".gitplatform";
-function createTokenPath() {
-  return path.resolve(homedir(), TEMP_HOME, TEMP_TOKEN);
+
+const TEMP_GITHUB_TOEN = ".github-token";
+const TEMP_GITEE_TOEN = ".gitee-token";
+
+function createTokenPath(platForm) {
+  if (platForm === "github") {
+    return path.resolve(homedir(), TEMP_HOME, TEMP_GITHUB_TOEN);
+  } else {
+    return path.resolve(homedir(), TEMP_HOME, TEMP_GITEE_TOEN);
+  }
 }
 
 function getProjectPath(cwd, fullName) {
@@ -30,23 +36,23 @@ function getPackageJson(cwd, fullName) {
   }
 }
 
-function createPlatformPath() {
-  return path.resolve(homedir(), TEMP_HOME, TEMP_PLATFORM);
-}
+// function createPlatformPath() {
+//   return path.resolve(homedir(), TEMP_HOME, TEMP_PLATFORM);
+// }
 
-function getGitPlatform() {
-  if (pathExistsSync(createPlatformPath())) {
-    return fs.readFileSync(createPlatformPath()).toString();
-  }
-  return null;
-}
+// function getGitPlatform() {
+//   if (pathExistsSync(createPlatformPath())) {
+//     return fs.readFileSync(createPlatformPath()).toString();
+//   }
+//   return null;
+// }
 
 export default class GitServer {
   constructor() {}
 
-  async init() {
+  async init(platForm) {
     // 判断 token 是否录入
-    const tokenPath = createTokenPath();
+    const tokenPath = createTokenPath(platForm);
     if (pathExistsSync(tokenPath)) {
       this.token = fse.readFileSync(tokenPath).toString();
     } else {
@@ -60,13 +66,13 @@ export default class GitServer {
     return await makePassword({ message: "请输入 token 信息" });
   }
 
-  savePlatform(platForm) {
-    fs.writeFileSync(createPlatformPath(), platForm);
-  }
+  // savePlatform(platForm) {
+  //   fs.writeFileSync(createPlatformPath(), platForm);
+  // }
 
-  getPlatform() {
-    return getGitPlatform();
-  }
+  // getPlatform() {
+  //   return getGitPlatform();
+  // }
 
   cloneRepo(fullName, tag) {
     if (tag) {
@@ -128,4 +134,7 @@ export default class GitServer {
   }
 }
 
-export { getGitPlatform, GitServer };
+export {
+  // getGitPlatform
+  GitServer,
+};

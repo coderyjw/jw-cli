@@ -4,7 +4,7 @@ import {
   Github,
   Gitee,
   makeList,
-  getGitPlatform,
+  // getGitPlatform,
   log,
   makeInput,
   printErrorLog,
@@ -38,34 +38,29 @@ class InstallCommand extends Command {
   }
 
   async generateGitAPI() {
-    let platForm = getGitPlatform();
+    this.platForm = await makeList({
+      message: "请选择 Git 平台",
+      choices: [
+        {
+          name: "Github",
+          value: "github",
+        },
+        { name: "Gitee", value: "gitee" },
+      ],
+    });
+    log.verbose("platForm", this.platForm);
 
-    if (!platForm) {
-      platForm = await makeList({
-        message: "请选择 Git 平台",
-        choices: [
-          {
-            name: "Github",
-            value: "github",
-          },
-          { name: "Gitee", value: "gitee" },
-        ],
-      });
-    }
-    log.verbose("platform", platForm);
-
-    if (platForm === "github") {
+    if (this.platForm === "github") {
       this.gitAPI = new Github();
-    } else if (platForm === "gitee") {
+    } else if (this.platForm === "gitee") {
       this.gitAPI = new Gitee();
     }
-    this.gitAPI.savePlatform(platForm);
-    await this.gitAPI.init();
+    await this.gitAPI.init(this.platForm);
   }
 
   async searchGitAPI() {
-    const platform = this.gitAPI.getPlatform();
-    if (platform === "github") {
+    log.verbose("this.platForm", this.platForm);
+    if (this.platForm === "github") {
       this.mode = await makeList({
         message: "请选择搜索模式",
         choices: [
@@ -94,7 +89,7 @@ class InstallCommand extends Command {
     this.keywords =
       this.q + (this.language ? `+language:${this.language}` : "");
 
-    log.verbose("search keywords", this.keywords, platform);
+    log.verbose("search keywords", this.keywords, this.platForm);
 
     this.page = 1;
     this.perPage = 10;
@@ -106,14 +101,12 @@ class InstallCommand extends Command {
 
   async doSearch() {
     // 2. 根据平台生成搜索参数
-    const platform = this.gitAPI.getPlatform();
-
     let params;
     let count = 0;
     let list;
     let searchResult;
 
-    if (platform === "github") {
+    if (this.platForm === "github") {
       // https://api.github.com/search/repositories?q=vue%2Blanguage:vue&order=desc&sort=stars&per_page=5&page=1
       params = {
         q: this.keywords,
@@ -124,6 +117,7 @@ class InstallCommand extends Command {
       };
 
       log.verbose("search project params", params);
+      log.verbose("mode", this.mode);
       if (this.mode === SEARCH_MODE_REPO) {
         searchResult = await this.gitAPI.searchRepositories(params);
         list = searchResult.items.map((item) => ({
@@ -143,7 +137,7 @@ class InstallCommand extends Command {
       // log.verbose("searchResult", searchResult);
 
       count = searchResult.total_count; // 整体数据量
-    } else if (platform === "gitee") {
+    } else if (this.platForm === "gitee") {
       params = {
         q: this.q,
         order: "desc",
@@ -167,8 +161,8 @@ class InstallCommand extends Command {
     }
     // 判断当前页面，已经是否达到最大页数
     if (
-      (platform === "github" && this.page * this.perPage < count) ||
-      (platform === "gitee" && list?.length > 0)
+      (this.platForm === "github" && this.page * this.perPage < count) ||
+      (this.platForm === "gitee" && list?.length > 0)
     ) {
       list.push({
         name: "下一页",
@@ -186,7 +180,7 @@ class InstallCommand extends Command {
     if (count > 0) {
       const selectedProject = await makeList({
         message:
-          platform === "github"
+          this.platForm === "github"
             ? `请选择要下载的项目（共 ${count} 条数据）`
             : "请选择要下载的项目",
         choices: list,
@@ -203,16 +197,6 @@ class InstallCommand extends Command {
     }
   }
 
-  async nextPage() {
-    this.page++;
-    await this.doSearch();
-  }
-
-  async prevPage() {
-    this.page--;
-    await this.doSearch();
-  }
-
   async selectTags() {
     let tagsList;
     this.tagPage = 1;
@@ -221,9 +205,8 @@ class InstallCommand extends Command {
   }
 
   async doSelectTags() {
-    const platform = this.gitAPI.getPlatform();
     let tagsListChoices = [];
-    if (platform === "github") {
+    if (this.platForm === "github") {
       const params = {
         page: this.tagPage,
         per_page: this.tagPerPage,
@@ -266,16 +249,6 @@ class InstallCommand extends Command {
     } else {
       this.selectedTag = selectedTag;
     }
-  }
-
-  async prevTags() {
-    this.tagPage--;
-    await this.doSelectTags();
-  }
-
-  async nextTags() {
-    this.tagPage++;
-    await this.doSelectTags();
   }
 
   async downloadRepo() {
@@ -322,6 +295,26 @@ class InstallCommand extends Command {
 
   async runRepo() {
     await this.gitAPI.runRepo(process.cwd(), this.selectedProject);
+  }
+
+  async nextPage() {
+    this.page++;
+    await this.doSearch();
+  }
+
+  async prevPage() {
+    this.page--;
+    await this.doSearch();
+  }
+
+  async prevTags() {
+    this.tagPage--;
+    await this.doSelectTags();
+  }
+
+  async nextTags() {
+    this.tagPage++;
+    await this.doSelectTags();
   }
 }
 
