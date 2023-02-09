@@ -118,7 +118,7 @@ class InstallCommand extends Command {
       params = {
         q: this.keywords,
         order: "desc",
-        sort: "stars",
+        // sort: "stars",
         per_page: this.perPage,
         page: this.page,
       };
@@ -147,7 +147,7 @@ class InstallCommand extends Command {
       params = {
         q: this.q,
         order: "desc",
-        sort: "stars_count",
+        // sort: "stars_count",
         per_page: this.perPage,
         page: this.page,
       };

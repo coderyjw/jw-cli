@@ -92,7 +92,19 @@ export default class GitServer {
     const projectPath = getProjectPath(cwd, fullName);
     const pkg = getPackageJson(cwd, fullName);
     if (pkg) {
-      const { scripts } = pkg;
+      const { scripts, bin } = pkg;
+
+      if (bin) {
+        execa(
+          "npm",
+          ["run", "-g", name, "--registry=https://registry.npmmirror.com"],
+          {
+            cwd: projectPath,
+            stdout: "inherit",
+          }
+        );
+      }
+
       if (scripts && scripts.dev) {
         return execa("npm", ["run", "dev"], {
           cwd: projectPath,
