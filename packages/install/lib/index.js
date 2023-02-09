@@ -21,7 +21,7 @@ class InstallCommand extends Command {
   }
 
   get description() {
-    return "install project";
+    return "项目下载、安装依赖、启动项目";
   }
 
   get options() {}

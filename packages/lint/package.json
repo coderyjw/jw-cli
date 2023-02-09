@@ -26,6 +26,7 @@
   "type": "module",
   "dependencies": {
     "@yejiwei/command": "^0.0.0",
-    "@yejiwei/utils": "^0.0.0"
+    "@yejiwei/utils": "^0.0.0",
+    "eslint": "^8.33.0"
   }
 }
