@@ -6,7 +6,7 @@ import request from "./request.js";
 import Github from "../git/Github.js";
 import Gitee from "../git/Gitee.js";
 import { clearAllCache, clearTokenCache } from "../git/GitServer.js";
-import { chooseGitPlatForm, initGitServer, initGitType } from "../git/GitUtils.js";
+import { chooseGitPlatForm, initGitServer, initGitType, createRemoteRepo } from "../git/GitUtils.js";
 
 function printErrorLog(e, type) {
   if (isDebug()) {
@@ -31,4 +31,5 @@ export {
   initGitType,
   clearAllCache,
   clearTokenCache,
+  createRemoteRepo,
 };

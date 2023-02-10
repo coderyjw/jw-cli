@@ -74,10 +74,15 @@ export async function initGitType(gitAPI) {
 
   log.verbose("gitLogin", gitLogin);
   if (!gitLogin || !gitOwn) {
-    throw new Error('未获取到用户的 Git 登录信息！请使用 "jw-cli commit --clear" 清除缓存后重试');
+    throw new Error('未获取到用户的 Git 登录信息！请使用 "jw-cli clear" 清除缓存后重试');
   }
   gitAPI.saveOwn(gitOwn);
   gitAPI.saveLogin(gitLogin);
 
   return gitLogin;
+}
+
+export async function createRemoteRepo(gitAPI, name) {
+  const ret = await gitAPI.createRepo(name);
+  
 }

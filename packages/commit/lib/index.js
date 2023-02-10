@@ -1,5 +1,8 @@
+import fse from "fs-extra";
+import path from "node:path";
 import Command from "@yejiwei/command";
-import { chooseGitPlatForm, initGitServer, initGitType } from "@yejiwei/utils";
+import { chooseGitPlatForm, initGitServer, initGitType, createRemoteRepo } from "@yejiwei/utils";
+
 class CommitCommand extends Command {
   get command() {
     return "commit";
@@ -9,11 +12,9 @@ class CommitCommand extends Command {
     return "代码提交器";
   }
 
-  get options() {
-  }
+  get options() {}
 
   async action(params) {
-    
     // 1. 创建远程仓库
     await this.createRemoteRepo();
   }
@@ -26,6 +27,13 @@ class CommitCommand extends Command {
 
     // 3. 仓库类型选择
     await initGitType(this.gitAPI);
+
+    // 4. 创建远程仓库
+    // 获取项目名称
+    const dir = process.cwd();
+    const pkg = fse.readJsonSync(path.resolve(dir, "package.json"));
+    this.name = pkg.name;
+    await createRemoteRepo(this.gitAPI, this.name);
   }
 }
 

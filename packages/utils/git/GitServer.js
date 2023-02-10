@@ -153,6 +153,18 @@ export default class GitServer {
     this.login = login;
     fs.writeFileSync(createLoginPath(), login);
   }
+
+  getUser() {
+    throw new Error("getUser must be implemented!");
+  }
+
+  getOrg() {
+    throw new Error("getOrg must be implemented!");
+  }
+
+  createRepo() {
+    throw new Error("createRepo must be implemented!");
+  }
 }
 
 export { GitServer, getGitOwn, getGitLogin, clearAllCache, clearTokenCache };
