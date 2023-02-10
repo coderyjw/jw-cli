@@ -1,7 +1,7 @@
 import { GitServer } from "./GitServer.js";
 import axios from "axios";
 
-// token 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
+// token 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
 const BASE_URL = "https://api.github.com";
 export default class GitHub extends GitServer {
   constructor() {

@@ -1,13 +1,12 @@
 import ora from "ora";
 import Command from "@yejiwei/command";
 import {
-  Github,
-  Gitee,
   makeList,
-  // getGitPlatform,
+  chooseGitPlatForm,
   log,
   makeInput,
   printErrorLog,
+  initGitServer,
 } from "@yejiwei/utils";
 
 const PREV_PAGE = "prev_page";
@@ -38,24 +37,9 @@ class InstallCommand extends Command {
   }
 
   async generateGitAPI() {
-    this.platForm = await makeList({
-      message: "请选择 Git 平台",
-      choices: [
-        {
-          name: "Github",
-          value: "github",
-        },
-        { name: "Gitee", value: "gitee" },
-      ],
-    });
-    log.verbose("platForm", this.platForm);
+    this.platForm = await chooseGitPlatForm();
 
-    if (this.platForm === "github") {
-      this.gitAPI = new Github();
-    } else if (this.platForm === "gitee") {
-      this.gitAPI = new Gitee();
-    }
-    await this.gitAPI.init(this.platForm);
+    this.gitAPI = await initGitServer(this.platForm);
   }
 
   async searchGitAPI() {
@@ -86,8 +70,7 @@ class InstallCommand extends Command {
       message: "请输入开发语言",
     });
 
-    this.keywords =
-      this.q + (this.language ? `+language:${this.language}` : "");
+    this.keywords = this.q + (this.language ? `+language:${this.language}` : "");
 
     log.verbose("search keywords", this.keywords, this.platForm);
 
@@ -127,10 +110,7 @@ class InstallCommand extends Command {
       } else if (this.mode === SEARCH_MODE_CODE) {
         searchResult = await this.gitAPI.searchCode(params);
         list = searchResult.map((item) => ({
-          name:
-            item.repository.full_name +
-            (item.repository.description &&
-              `（${item.repository.description}）`),
+          name: item.repository.full_name + (item.repository.description && `（${item.repository.description}）`),
           value: item.repository.full_name,
         }));
       }
@@ -179,10 +159,7 @@ class InstallCommand extends Command {
 
     if (count > 0) {
       const selectedProject = await makeList({
-        message:
-          this.platForm === "github"
-            ? `请选择要下载的项目（共 ${count} 条数据）`
-            : "请选择要下载的项目",
+        message: this.platForm === "github" ? `请选择要下载的项目（共 ${count} 条数据）` : "请选择要下载的项目",
         choices: list,
       });
 
@@ -252,15 +229,11 @@ class InstallCommand extends Command {
   }
 
   async downloadRepo() {
-    const spinner = ora(
-      `正在下载：${this.selectedProject}（${this.selectedTag}）`
-    ).start();
+    const spinner = ora(`正在下载：${this.selectedProject}（${this.selectedTag}）`).start();
     try {
       await this.gitAPI.cloneRepo(this.selectedProject, this.selectedTag);
       spinner.stop();
-      log.success(
-        `下载模板成功：${this.selectedProject}（${this.selectedTag}）`
-      );
+      log.success(`下载模板成功：${this.selectedProject}（${this.selectedTag}）`);
       await this.installDependencies();
       await this.runRepo();
     } catch (err) {
@@ -270,20 +243,12 @@ class InstallCommand extends Command {
   }
 
   async installDependencies() {
-    const spinner = ora(
-      `正在安装依赖：${this.selectedProject}（${this.selectedTag}）`
-    ).start();
+    const spinner = ora(`正在安装依赖：${this.selectedProject}（${this.selectedTag}）`).start();
     try {
-      const ret = await this.gitAPI.installDependencies(
-        process.cwd(),
-        this.selectedProject,
-        this.selectedTag
-      );
+      const ret = await this.gitAPI.installDependencies(process.cwd(), this.selectedProject, this.selectedTag);
       spinner.stop();
       if (ret) {
-        log.success(
-          `依赖安装安装成功：${this.selectedProject}（${this.selectedTag}`
-        );
+        log.success(`依赖安装安装成功：${this.selectedProject}（${this.selectedTag}`);
       } else {
         log.error("依赖安装失败");
       }

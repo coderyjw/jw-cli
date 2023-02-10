@@ -1,5 +1,5 @@
 import Command from "@yejiwei/command";
-
+import { chooseGitPlatForm, initGitServer } from "@yejiwei/utils";
 class CommitCommand extends Command {
   get command() {
     return "commit";
@@ -12,7 +12,13 @@ class CommitCommand extends Command {
   get options() {}
 
   async action(params) {
-    console.log("commit");
+    // 1. 创建远程仓库
+    await this.createRemoteRepo();
+  }
+
+  async createRemoteRepo() {
+    this.platForm = await chooseGitPlatForm();
+    this.gitAPI = await initGitServer(this.platForm);
   }
 }
 

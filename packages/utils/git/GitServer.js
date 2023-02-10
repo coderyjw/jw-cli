@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { pathExistsSync } from "path-exists";
 import fse from "fs-extra";
-import { makePassword } from "../lib/inquirer.js";
+import { makePassword, makeList } from "../lib/inquirer.js";
 import { log } from "../lib/index.js";
 import { execa } from "execa";
 
@@ -36,17 +36,6 @@ function getPackageJson(cwd, fullName) {
   }
 }
 
-// function createPlatformPath() {
-//   return path.resolve(homedir(), TEMP_HOME, TEMP_PLATFORM);
-// }
-
-// function getGitPlatform() {
-//   if (pathExistsSync(createPlatformPath())) {
-//     return fs.readFileSync(createPlatformPath()).toString();
-//   }
-//   return null;
-// }
-
 export default class GitServer {
   constructor() {}
 
@@ -66,14 +55,6 @@ export default class GitServer {
     return await makePassword({ message: "请输入 token 信息" });
   }
 
-  // savePlatform(platForm) {
-  //   fs.writeFileSync(createPlatformPath(), platForm);
-  // }
-
-  // getPlatform() {
-  //   return getGitPlatform();
-  // }
-
   cloneRepo(fullName, tag) {
     if (tag) {
       return execa("git", ["clone", this.getRepoUrl(fullName), "-b", tag]);
@@ -84,11 +65,7 @@ export default class GitServer {
   installDependencies(cwd, fullName, tag) {
     const projectPath = getProjectPath(cwd, fullName);
     if (pathExistsSync(projectPath)) {
-      return execa(
-        "npm",
-        ["install", "--registry=https://registry.npmmirror.com"],
-        { cwd: projectPath }
-      );
+      return execa("npm", ["install", "--registry=https://registry.npmmirror.com"], { cwd: projectPath });
     }
 
     return null;
@@ -101,14 +78,10 @@ export default class GitServer {
       const { scripts, bin } = pkg;
 
       if (bin) {
-        execa(
-          "npm",
-          ["run", "-g", name, "--registry=https://registry.npmmirror.com"],
-          {
-            cwd: projectPath,
-            stdout: "inherit",
-          }
-        );
+        execa("npm", ["run", "-g", name, "--registry=https://registry.npmmirror.com"], {
+          cwd: projectPath,
+          stdout: "inherit",
+        });
       }
 
       if (scripts && scripts.dev) {
@@ -134,7 +107,4 @@ export default class GitServer {
   }
 }
 
-export {
-  // getGitPlatform
-  GitServer,
-};
+export { GitServer };

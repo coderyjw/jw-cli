@@ -1,7 +1,7 @@
 import { GitServer } from "./GitServer.js";
 import axios from "axios";
 
-// token acc84536768f570145d1f2f13747196f
+// token c96a2a8bea2a0c32697d6d73a1719792
 const BASE_URL = "https://gitee.com/api/v5";
 export default class Gitee extends GitServer {
   constructor() {
@@ -46,6 +46,4 @@ export default class Gitee extends GitServer {
   getRepoUrl(fullName) {
     return `https://gitee.com/${fullName}.git`;
   }
-
-  
 }

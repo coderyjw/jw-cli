@@ -5,7 +5,7 @@ import getLatestVersion from "./npm.js";
 import request from "./request.js";
 import Github from "../git/Github.js";
 import Gitee from "../git/Gitee.js";
-// import { getGitPlatform } from "../git/GitServer.js";
+import { chooseGitPlatForm, initGitServer } from "../git/GitUtils.js";
 
 export function printErrorLog(e, type) {
   if (isDebug()) {
@@ -17,12 +17,13 @@ export function printErrorLog(e, type) {
 
 export {
   log,
+  request,
+  Github,
+  Gitee,
   isDebug,
   makeList,
   makeInput,
   getLatestVersion,
-  request,
-  Github,
-  // getGitPlatform,
-  Gitee,
+  chooseGitPlatForm,
+  initGitServer,
 };
