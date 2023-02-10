@@ -26,3 +26,10 @@ export async function initGitServer(platForm) {
   await gitAPI.init(platForm);
   return gitAPI;
 }
+
+export async function initGitType(gitAPI) {
+  const user = await gitAPI.getUser();
+  const org = await gitAPI.getOrg();
+  log.verbose("user", user);
+  log.verbose("org", org);
+}

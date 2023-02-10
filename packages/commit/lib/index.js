@@ -1,5 +1,5 @@
 import Command from "@yejiwei/command";
-import { chooseGitPlatForm, initGitServer } from "@yejiwei/utils";
+import { chooseGitPlatForm, initGitServer, initGitType } from "@yejiwei/utils";
 class CommitCommand extends Command {
   get command() {
     return "commit";
@@ -17,8 +17,13 @@ class CommitCommand extends Command {
   }
 
   async createRemoteRepo() {
+    // 1. 获取平台 platForm
     this.platForm = await chooseGitPlatForm();
+    // 2. 实例化 Git 对象
     this.gitAPI = await initGitServer(this.platForm);
+
+    // 3. 仓库类型选择
+    await initGitType(this.gitAPI);
   }
 }
 

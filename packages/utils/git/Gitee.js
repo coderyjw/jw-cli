@@ -46,4 +46,12 @@ export default class Gitee extends GitServer {
   getRepoUrl(fullName) {
     return `https://gitee.com/${fullName}.git`;
   }
+
+  getUser() {
+    return this.get("/user");
+  }
+
+  getOrg() {
+    return this.get("/user/orgs");
+  }
 }
