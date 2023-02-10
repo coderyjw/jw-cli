@@ -58,4 +58,12 @@ export default class GitHub extends GitServer {
   getRepoUrl(fullName) {
     return `https://github.com/${fullName}.git`;
   }
+
+  getUser() {
+    return this.get("/user");
+  }
+
+  getOrg() {
+    return this.get("/user/orgs");
+  }
 }
