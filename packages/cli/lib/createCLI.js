@@ -13,9 +13,7 @@ const LOWEST_NODE_VERSION = "14.0.0";
 const checkNodeVersion = () => {
   log.verbose("node version", process.version);
   if (!semver.gte(process.version, LOWEST_NODE_VERSION)) {
-    throw new Error(
-      chalk.red(`jw-cli 需要安装 ${LOWEST_NODE_VERSION} 以上版本的 Node.js`)
-    );
+    throw new Error(chalk.red(`jw-cli 需要安装 ${LOWEST_NODE_VERSION} 以上版本的 Node.js`));
   }
 };
 

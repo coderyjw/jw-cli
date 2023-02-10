@@ -11,6 +11,8 @@ const TEMP_HOME = ".jw-cli";
 
 const TEMP_GITHUB_TOEN = ".github-token";
 const TEMP_GITEE_TOEN = ".gitee-token";
+const TEMP_OWN = ".git_own";
+const TEMP_LOGIN = ".git_login";
 
 function createTokenPath(platForm) {
   if (platForm === "github") {
@@ -18,6 +20,14 @@ function createTokenPath(platForm) {
   } else {
     return path.resolve(homedir(), TEMP_HOME, TEMP_GITEE_TOEN);
   }
+}
+
+function createOwnPath() {
+  return path.resolve(homedir(), TEMP_HOME, TEMP_OWN);
+}
+
+function createLoginPath() {
+  return path.resolve(homedir(), TEMP_HOME, TEMP_LOGIN);
 }
 
 function getProjectPath(cwd, fullName) {
@@ -34,6 +44,20 @@ function getPackageJson(cwd, fullName) {
   } else {
     return null;
   }
+}
+
+function getGitOwn() {
+  if (pathExistsSync(createOwnPath())) {
+    return fs.readFileSync(createOwnPath()).toString();
+  }
+  return null;
+}
+
+function getGitLogin() {
+  if (pathExistsSync(createLoginPath())) {
+    return fs.readFileSync(createLoginPath()).toString();
+  }
+  return null;
 }
 
 function clearCache() {
@@ -110,6 +134,16 @@ export default class GitServer {
     } else {
     }
   }
+
+  saveOwn(own) {
+    this.own = own;
+    fs.writeFileSync(createOwnPath(), own);
+  }
+
+  saveLogin(login) {
+    this.login = login;
+    fs.writeFileSync(createLoginPath(), login);
+  }
 }
 
-export { GitServer, clearCache };
+export { GitServer, clearCache, getGitOwn, getGitLogin };
