@@ -20,11 +20,7 @@ class InstallCommand extends Command {
     return [["-c, --clear", "清空缓存", false]];
   }
 
-  async action([{ clear }]) {
-    if (clear) {
-      clearCache();
-    }
-
+  async action() {
     await this.generateGitAPI();
 
     await this.searchGitAPI();

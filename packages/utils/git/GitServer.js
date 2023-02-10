@@ -60,9 +60,18 @@ function getGitLogin() {
   return null;
 }
 
-function clearCache() {
-  const token = createTokenPath();
-  fse.removeSync(token);
+function clearAllCache() {
+  clearTokenCache();
+  const own = createOwnPath();
+  const login = createLoginPath();
+  fse.removeSync(own);
+  fse.removeSync(login);
+}
+function clearTokenCache() {
+  const githubPath = path.resolve(homedir(), TEMP_HOME, TEMP_GITHUB_TOEN);
+  const giteePath = path.resolve(homedir(), TEMP_HOME, TEMP_GITEE_TOEN);
+  fse.removeSync(githubPath);
+  fse.removeSync(giteePath);
 }
 
 export default class GitServer {
@@ -146,4 +155,4 @@ export default class GitServer {
   }
 }
 
-export { GitServer, clearCache, getGitOwn, getGitLogin };
+export { GitServer, getGitOwn, getGitLogin, clearAllCache, clearTokenCache };

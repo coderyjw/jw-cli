@@ -1,0 +1,31 @@
+{
+  "name": "@yejiwei/clear",
+  "version": "0.0.0",
+  "description": "clear command",
+  "author": "叶继伟 <yejw6@asiainfo.com>",
+  "homepage": "https://github.com/coderyjw/jw-cli#readme",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coderyjw/jw-cli.git"
+  },
+  "scripts": {
+    "test": "node ./__tests__/clear.test.js"
+  },
+  "bugs": {
+    "url": "https://github.com/coderyjw/jw-cli/issues"
+  },
+  "dependencies": {
+    "@yejiwei/command": "^0.0.0",
+    "@yejiwei/utils": "^0.0.0"
+  },
+  "type": "module"
+}

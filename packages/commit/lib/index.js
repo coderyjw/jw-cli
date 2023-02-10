@@ -1,5 +1,5 @@
 import Command from "@yejiwei/command";
-import { chooseGitPlatForm, initGitServer, initGitType, clearCache } from "@yejiwei/utils";
+import { chooseGitPlatForm, initGitServer, initGitType } from "@yejiwei/utils";
 class CommitCommand extends Command {
   get command() {
     return "commit";
@@ -10,13 +10,10 @@ class CommitCommand extends Command {
   }
 
   get options() {
-    return [["-c, --clear", "清空缓存", false]];
   }
 
-  async action([{ clear }]) {
-    if (clear) {
-      clearCache();
-    }
+  async action(params) {
+    
     // 1. 创建远程仓库
     await this.createRemoteRepo();
   }
