@@ -21,6 +21,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@yejiwei/commit": "^0.0.0",
     "@yejiwei/init": "^0.0.0",
     "@yejiwei/install": "^0.0.0",
     "@yejiwei/lint": "^0.0.0",

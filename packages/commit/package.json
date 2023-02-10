@@ -1,9 +1,9 @@
 {
-  "name": "@yejiwei/install",
+  "name": "@yejiwei/commit",
   "version": "0.0.0",
-  "description": "install command",
+  "description": "commit command",
   "author": "叶继伟 <yejw6@asiainfo.com>",
-  "homepage": "https://github.com/coderyjw/jw-cli#readme",
+  "homepage": "",
   "license": "ISC",
   "main": "lib/index.js",
   "directories": {
@@ -18,7 +18,7 @@
     "url": "git+https://github.com/coderyjw/jw-cli.git"
   },
   "scripts": {
-    "test": "node ./__tests__/install.test.js"
+    "test": "node ./__tests__/commit.test.js"
   },
   "bugs": {
     "url": "https://github.com/coderyjw/jw-cli/issues"
