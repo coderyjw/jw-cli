@@ -1,13 +1,6 @@
 import ora from "ora";
 import Command from "@yejiwei/command";
-import {
-  makeList,
-  chooseGitPlatForm,
-  log,
-  makeInput,
-  printErrorLog,
-  initGitServer,
-} from "@yejiwei/utils";
+import { makeList, chooseGitPlatForm, log, makeInput, printErrorLog, initGitServer } from "@yejiwei/utils";
 
 const PREV_PAGE = "prev_page";
 const NEXT_PAGE = "next_page";
@@ -23,9 +16,15 @@ class InstallCommand extends Command {
     return "项目下载、安装依赖、启动项目";
   }
 
-  get options() {}
+  get options() {
+    return [["-c, --clear", "清空缓存", false]];
+  }
 
-  async action(params) {
+  async action([{ clear }]) {
+    if (clear) {
+      clearCache();
+    }
+
     await this.generateGitAPI();
 
     await this.searchGitAPI();

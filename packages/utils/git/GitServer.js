@@ -36,6 +36,11 @@ function getPackageJson(cwd, fullName) {
   }
 }
 
+function clearCache() {
+  const token = createTokenPath();
+  fse.removeSync(token);
+}
+
 export default class GitServer {
   constructor() {}
 
@@ -107,4 +112,4 @@ export default class GitServer {
   }
 }
 
-export { GitServer };
+export { GitServer, clearCache };
