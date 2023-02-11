@@ -33,6 +33,7 @@ class CommitCommand extends Command {
     await this.commit();
   }
 
+  // 1. 创建远程仓库
   async createRemoteRepo() {
     // 1. 获取平台 platForm
     this.platForm = await chooseGitPlatForm();
@@ -84,6 +85,7 @@ pnpm-debug.log*
     }
   }
 
+  // 2：git本地初始化
   async initLocal() {
     // 生成 git remote 地址
     const remoteUrl = this.gitAPI.getRepoUrl(
@@ -128,6 +130,33 @@ pnpm-debug.log*
     }
   }
 
+  // 3. 代码自动化提交
+  async commit() {
+    // 自动生成版本号
+    await this.getCorrectVersion();
+    await this.checkStash();
+
+    await this.checkConficted();
+  }
+
+  async checkStash() {
+    log.info("检查 stash 记录");
+    const stashList = await this.git.stashList();
+    if (stashList.all.length > 0) {
+      await this.git.stash(["pop"]);
+      log.success("stash pop 成功");
+    }
+  }
+
+  async checkConficted() {
+    log.info("代码冲突检查");
+    const status = await this.git.status();
+    if (status.conflicted.length > 0) {
+      throw new Error("当前代码存在冲突，请手动处理合并后再试！");
+    }
+    log.success("代码冲突检查通过");
+  }
+
   async checkNotCommitted() {
     const status = await this.git.status();
     if (
@@ -160,11 +189,6 @@ pnpm-debug.log*
     log.info(`推送代码至远程 ${branchName}`);
     await this.git.push("origin", branchName);
     log.success("推送代码成功");
-  }
-
-  async commit() {
-    // 自动生成版本号
-    await this.getCorrectVersion();
   }
 
   async getCorrectVersion() {
