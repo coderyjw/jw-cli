@@ -116,10 +116,12 @@ pnpm-debug.log*
       const tags = await this.git.listRemote(["--refs"]);
       log.verbose("listRemote", tags);
       if (tags.indexOf("refs/heads/master") >= 0) {
-        this.pullRemoteRepo("master");
+        await this.pullRemoteRepo("master", {
+          "--allow-unrelated-histories": null,
+        });
       } else {
         // 推送代码到远程 master 分支
-        this.pushRemoteRepo("master");
+        await this.pushRemoteRepo("master");
       }
     }
   }
@@ -136,7 +138,10 @@ pnpm-debug.log*
     await this.checkNotCommitted();
     // 开发分支自动切换
     await this.checkoutBranch(this.branch);
+    // 自动合并远程master和开发分支
     await this.pullRemoteMasterAndBranch();
+    // 代码冲突处理
+    await this.pushRemoteRepo(this.branch);
   }
 
   async pullRemoteMasterAndBranch() {
@@ -149,17 +154,17 @@ pnpm-debug.log*
       log.info(`合并 [${this.branch}] -> [${this.branch}]`);
       await this.pullRemoteRepo(this.branch);
       log.success(`合并远程分支 [${this.branch}] 成功`);
-      await this.checkConficted()
+      await this.checkConficted();
     } else {
       log.success(`不存在远程分支 [${this.branch}]`);
     }
   }
 
-  async pullRemoteRepo(branch) {
+  async pullRemoteRepo(branch = "master", options) {
     // 拉取远程master分支，实现代码同步
-    log.info(`同步远程${branch}分支代码`);
-    await this.git.pull("origin", branch).catch((err) => {
-      log.verbose(`git pull origin ${branch}`, err.message);
+    log.info(`同步远程 ${branch} 分支代码`);
+    await this.git.pull("origin", branch, options).catch((err) => {
+      log.error(`git pull origin ${branch}`, err.message);
       if (err.message.indexOf(`Couldn't find remote ref ${branch}`) >= 0) {
         log.warn(`获取远程[${branch}]分支失败`);
       }
@@ -223,7 +228,7 @@ pnpm-debug.log*
     }
   }
 
-  async pushRemoteRepo(branchName) {
+  async pushRemoteRepo(branchName = "master", options = {}) {
     log.info(`推送代码至远程 ${branchName}`);
     await this.git.push("origin", branchName);
     log.success("推送代码成功");
