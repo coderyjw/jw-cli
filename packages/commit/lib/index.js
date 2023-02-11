@@ -5,7 +5,7 @@ import SimpleGit from "simple-git";
 import semver from "semver";
 
 import Command from "@yejiwei/command";
-import { log, makeInput } from "@yejiwei/utils";
+import { log, makeInput, makeList } from "@yejiwei/utils";
 import {
   chooseGitPlatForm,
   initGitServer,
@@ -47,6 +47,7 @@ class CommitCommand extends Command {
     const dir = process.cwd();
     const pkg = fse.readJsonSync(path.resolve(dir, "package.json"));
     this.name = pkg.name;
+    this.version = pkg.version || "1.0.0";
     await createRemoteRepo(this.gitAPI, this.name);
 
     // 5. 生成.gitignore
@@ -84,7 +85,7 @@ pnpm-debug.log*
   }
 
   async initLocal() {
-    // 生成git remote地址
+    // 生成 git remote 地址
     const remoteUrl = this.gitAPI.getRepoUrl(
       `${this.gitAPI.login}/${this.name}`
     );
@@ -104,25 +105,26 @@ pnpm-debug.log*
     if (!remotes.find((remote) => remote.name === "origin")) {
       this.git.addRemote("origin", remoteUrl);
       log.success("添加git remote", remoteUrl);
-    }
-    const status = await this.git.status();
-    // 检查未提交代码
-    await this.checkNotCommitted();
 
-    // 检查是否存在远程 master 分支
-    const tags = await this.git.listRemote(["--refs"]);
-    log.verbose("listRemote", tags);
-    if (tags.indexOf("refs/heads/master") >= 0) {
-      // 拉取远程master分支，实现代码同步
-      await this.git.pull("origin", "master").catch((err) => {
-        log.verbose("git pull origin master", err.message);
-        if (err.message.indexOf("Couldn't find remote ref master") >= 0) {
-          log.warn("获取远程[master]分支失败");
-        }
-      });
-    } else {
-      // 推送代码到远程 master 分支
-      this.pushRemoteRepo("master");
+      const status = await this.git.status();
+      // 检查未提交代码
+      await this.checkNotCommitted();
+
+      // 检查是否存在远程 master 分支
+      const tags = await this.git.listRemote(["--refs"]);
+      log.verbose("listRemote", tags);
+      if (tags.indexOf("refs/heads/master") >= 0) {
+        // 拉取远程master分支，实现代码同步
+        await this.git.pull("origin", "master").catch((err) => {
+          log.verbose("git pull origin master", err.message);
+          if (err.message.indexOf("Couldn't find remote ref master") >= 0) {
+            log.warn("获取远程[master]分支失败");
+          }
+        });
+      } else {
+        // 推送代码到远程 master 分支
+        this.pushRemoteRepo("master");
+      }
     }
   }
 
@@ -162,14 +164,64 @@ pnpm-debug.log*
 
   async commit() {
     // 自动生成版本号
-
     await this.getCorrectVersion();
   }
 
   async getCorrectVersion() {
     log.info("获取代码分支");
     const remoteBranchList = await this.getRemoteBranchList("release");
-    console.log(remoteBranchList);
+
+    let releaseVersion = null;
+    if (remoteBranchList && remoteBranchList.length > 0) {
+      releaseVersion = remoteBranchList[0];
+    }
+    const devVersion = this.version;
+    if (!releaseVersion) {
+      this.branch = `dev/${devVersion}`;
+    } else if (semver.gt(devVersion, releaseVersion)) {
+      log.info(
+        "当前本地版本号大于线上最新版本号",
+        `${devVersion} > ${releaseVersion}`
+      );
+      this.branch = `dev/${devVersion}`;
+    } else {
+      log.info(
+        "线上最新版本号大于当前本地版本号",
+        `${releaseVersion} > ${devVersion}`
+      );
+      const incType = await makeList({
+        message: "自动升级版本，请选择升级版本的类型",
+        defaultValue: "patch",
+        choices: [
+          {
+            name: `小版本（${releaseVersion} -> ${semver.inc(
+              releaseVersion,
+              "patch"
+            )}）`,
+            value: "patch",
+          },
+          {
+            name: `中版本（${releaseVersion} -> ${semver.inc(
+              releaseVersion,
+              "minor"
+            )}）`,
+            value: "minor",
+          },
+          {
+            name: `大版本（${releaseVersion} -> ${semver.inc(
+              releaseVersion,
+              "major"
+            )}）`,
+            value: "major",
+          },
+        ],
+      });
+      const incVersion = semver.inc(releaseVersion, incType);
+      this.branch = `dev/${incVersion}`;
+      this.version = incVersion;
+      this.syncVersionToPackageJson();
+    }
+    log.success(`代码分支获取成功 ${this.branch}`);
   }
 
   async getRemoteBranchList(type) {
@@ -201,6 +253,17 @@ pnpm-debug.log*
         }
         return 1;
       });
+  }
+
+  async syncVersionToPackageJson() {
+    const dir = process.cwd();
+    const pkgPath = path.resolve(dir, "package.json");
+    const pkg = fse.readJsonSync(pkgPath);
+
+    if (pkg && pkg.version !== this.version) {
+      pkg.version = this.version;
+      fse.writeJsonSync(pkgPath, pkg, { spaces: 2 });
+    }
   }
 }
 
