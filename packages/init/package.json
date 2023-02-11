@@ -1,6 +1,6 @@
 {
   "name": "@yejiwei/init",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "init command",
   "author": "叶继伟 <yejw6@asiainfo.com>",
   "homepage": "",
@@ -20,8 +20,8 @@
     "test": "node ./__tests__/init.test.js"
   },
   "dependencies": {
-    "@yejiwei/command": "^1.0.0",
-    "@yejiwei/utils": "^1.0.0",
+    "@yejiwei/command": "^1.0.1",
+    "@yejiwei/utils": "^1.0.1",
     "execa": "^6.1.0",
     "fs-extra": "^11.1.0",
     "ora": "^6.1.2",

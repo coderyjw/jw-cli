@@ -1,6 +1,6 @@
 {
   "name": "@yejiwei/clear",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "clear command",
   "author": "叶继伟 <yejw6@asiainfo.com>",
   "homepage": "https://github.com/coderyjw/jw-cli#readme",
@@ -24,8 +24,8 @@
     "url": "https://github.com/coderyjw/jw-cli/issues"
   },
   "dependencies": {
-    "@yejiwei/command": "^1.0.0",
-    "@yejiwei/utils": "^1.0.0"
+    "@yejiwei/command": "^1.0.1",
+    "@yejiwei/utils": "^1.0.1"
   },
   "publishConfig": {
     "access": "public"

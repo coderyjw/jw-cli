@@ -1,6 +1,6 @@
 {
   "name": "@yejiwei/cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "yejiwei cli",
   "author": "叶继伟 <yejw6@asiainfo.com>",
   "homepage": "",
@@ -24,12 +24,12 @@
     "access": "public"
   },
   "dependencies": {
-    "@yejiwei/clear": "^1.0.0",
-    "@yejiwei/commit": "^1.0.0",
-    "@yejiwei/init": "^1.0.0",
-    "@yejiwei/install": "^1.0.0",
-    "@yejiwei/lint": "^1.0.0",
-    "@yejiwei/utils": "^1.0.0",
+    "@yejiwei/clear": "^1.0.1",
+    "@yejiwei/commit": "^1.0.1",
+    "@yejiwei/init": "^1.0.1",
+    "@yejiwei/install": "^1.0.1",
+    "@yejiwei/lint": "^1.0.1",
+    "@yejiwei/utils": "^1.0.1",
     "chalk": "^5.2.0",
     "commander": "^10.0.0",
     "dirname-filename-esm": "^1.1.1",
