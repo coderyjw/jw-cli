@@ -1,10 +1,10 @@
 import fse from "fs-extra";
-import fs from "node:fs";
+import fs, { stat } from "node:fs";
 import path from "node:path";
 import SimpleGit from "simple-git";
 
 import Command from "@yejiwei/command";
-import { log } from "@yejiwei/utils";
+import { log, makeInput } from "@yejiwei/utils";
 import {
   chooseGitPlatForm,
   initGitServer,
@@ -103,13 +103,58 @@ pnpm-debug.log*
       log.success("添加git remote", remoteUrl);
     }
     const status = await this.git.status();
-    // 拉取远程master分支，实现代码同步
-    await this.git.pull("origin", "master").catch((err) => {
-      log.verbose("git pull origin master", err.message);
-      if (err.message.indexOf("Couldn't find remote ref master") >= 0) {
-        log.warn("获取远程[master]分支失败");
+    // 检查未提交代码
+    await this.checkNotCommitted();
+
+    // 检查是否存在远程 master 分支
+    const tags = await this.git.listRemote(["--refs"]);
+    log.verbose("listRemote", tags);
+    if (tags.indexOf("refs/heads/master") >= 0) {
+      // 拉取远程master分支，实现代码同步
+      await this.git.pull("origin", "master").catch((err) => {
+        log.verbose("git pull origin master", err.message);
+        if (err.message.indexOf("Couldn't find remote ref master") >= 0) {
+          log.warn("获取远程[master]分支失败");
+        }
+      });
+    } else {
+      // 推送代码到远程 master 分支
+      this.pushRemoteRepo("master");
+    }
+  }
+
+  async checkNotCommitted() {
+    const status = await this.git.status();
+    if (
+      status.not_added.length > 0 ||
+      status.created.length > 0 ||
+      status.deleted.length > 0 ||
+      status.renamed.length > 0 ||
+      status.modified.length > 0
+    ) {
+      log.verbose("status", status);
+      await this.git.add(status.not_added);
+      await this.git.add(status.created);
+      await this.git.add(status.deleted);
+      await this.git.add(status.renamed);
+      await this.git.add(status.modified);
+
+      let message;
+      while (!message) {
+        message = await makeInput({
+          message: "请输入 commit 信息",
+        });
       }
-    });
+
+      await this.git.commit(message);
+      log.success("本地 commit 提交成功");
+    }
+  }
+
+  async pushRemoteRepo(branchName) {
+    log.info(`推送代码至远程 ${branchName}`);
+    await this.git.push("origin", branchName);
+    log.success("推送代码成功");
   }
 }
 
