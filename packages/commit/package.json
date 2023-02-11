@@ -1,6 +1,6 @@
 {
   "name": "@yejiwei/commit",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "commit command",
   "author": "叶继伟 <yejw6@asiainfo.com>",
   "homepage": "",
@@ -25,8 +25,8 @@
   },
   "type": "module",
   "dependencies": {
-    "@yejiwei/command": "^0.0.0",
-    "@yejiwei/utils": "^0.0.0",
+    "@yejiwei/command": "^1.0.0",
+    "@yejiwei/utils": "^1.0.0",
     "fs-extra": "^11.1.0",
     "ora": "^6.1.2",
     "semver": "^7.3.8",
