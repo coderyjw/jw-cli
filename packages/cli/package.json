@@ -20,6 +20,9 @@
   "scripts": {
     "test": "jest"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@yejiwei/clear": "^1.0.0",
     "@yejiwei/commit": "^1.0.0",
@@ -40,5 +43,6 @@
     "@babel/preset-env": "^7.20.2",
     "execa": "^6.1.0",
     "jest": "^29.4.1"
-  }
+  },
+  "gitHead": "1e721b418ba0d312a5549c5a70432d6b8985060a"
 }

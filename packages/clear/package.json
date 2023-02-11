@@ -27,5 +27,9 @@
     "@yejiwei/command": "^1.0.0",
     "@yejiwei/utils": "^1.0.0"
   },
-  "type": "module"
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "gitHead": "1e721b418ba0d312a5549c5a70432d6b8985060a"
 }

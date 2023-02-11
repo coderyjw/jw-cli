@@ -10,6 +10,9 @@
     "lib": "lib",
     "test": "__tests__"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "lib"
   ],
@@ -24,5 +27,6 @@
     "ora": "^6.1.2",
     "path-exists": "^5.0.0"
   },
-  "type": "module"
+  "type": "module",
+  "gitHead": "1e721b418ba0d312a5549c5a70432d6b8985060a"
 }

@@ -1,7 +1,7 @@
 {
   "name": "@yejiwei/command",
   "version": "1.0.0",
-  "description": "common command class",
+  "description": "command class",
   "author": "叶继伟 <yejw6@asiainfo.com>",
   "homepage": "",
   "license": "ISC",
@@ -10,11 +10,15 @@
     "lib": "lib",
     "test": "__tests__"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "lib"
   ],
   "scripts": {
     "test": "node ./__tests__/command.test.js"
   },
-  "type": "module"
+  "type": "module",
+  "gitHead": "1e721b418ba0d312a5549c5a70432d6b8985060a"
 }

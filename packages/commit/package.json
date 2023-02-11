@@ -10,6 +10,9 @@
     "lib": "lib",
     "test": "__tests__"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "lib"
   ],
@@ -31,5 +34,6 @@
     "ora": "^6.1.2",
     "semver": "^7.3.8",
     "simple-git": "^3.16.0"
-  }
+  },
+  "gitHead": "1e721b418ba0d312a5549c5a70432d6b8985060a"
 }
