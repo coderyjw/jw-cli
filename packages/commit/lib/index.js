@@ -135,8 +135,9 @@ pnpm-debug.log*
     // 自动生成版本号
     await this.getCorrectVersion();
     await this.checkStash();
-
     await this.checkConficted();
+    await this.checkNotCommitted();
+    await this.checkoutBranch(this.branch);
   }
 
   async checkStash() {
@@ -155,6 +156,16 @@ pnpm-debug.log*
       throw new Error("当前代码存在冲突，请手动处理合并后再试！");
     }
     log.success("代码冲突检查通过");
+  }
+
+  async checkoutBranch(branchName) {
+    const localBranchList = await this.git.branchLocal();
+    if (localBranchList.all.indexOf(branchName) >= 0) {
+      await this.git.checkout(branchName);
+    } else {
+      await this.git.checkoutLocalBranch(branchName);
+    }
+    log.success(`本地分支切换到${branchName}`);
   }
 
   async checkNotCommitted() {
