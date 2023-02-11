@@ -22,15 +22,22 @@ class CommitCommand extends Command {
     return "代码提交器";
   }
 
-  get options() {}
+  get options() {
+    return [["-p, --publish", "发布", false]];
+  }
 
-  async action(params) {
+  async action([{ publish }]) {
     // 1. 创建远程仓库
     await this.createRemoteRepo();
     // 2：git本地初始化
     await this.initLocal();
     // 3. 代码自动化提交
     await this.commit();
+
+    // 4. 代码发布
+    if (publish) {
+      await this.publish();
+    }
   }
 
   // 1. 创建远程仓库
@@ -142,6 +149,35 @@ pnpm-debug.log*
     await this.pullRemoteMasterAndBranch();
     // 代码冲突处理
     await this.pushRemoteRepo(this.branch);
+  }
+
+  // 4. 代码发布
+  async publish() {
+    await this.checkTag();
+  }
+
+  async checkTag() {
+    log.info("远程 tag 列表");
+    const tag = `release/${this.version}`;
+    const tagList = await this.getRemoteBranchList("release");
+    console.log(tag, tagList);
+    if (tagList.includes(this.version)) {
+      log.info("远程 tag 已存在", tag);
+      await this.git.push(["origin", `:refs/tags/${tag}`]);
+      log.success("远程 tag 已删除", tag);
+    }
+    const localTagList = await this.git.tags();
+    console.log(localTagList);
+    if (localTagList.all.includes(tag)) {
+      log.info("本地 tag 已存在", tag);
+      await this.git.tag(["-d", tag]);
+      log.success("本地 tag 已删除", tag);
+    }
+
+    await this.git.addTag(tag);
+    log.success("本地 tag 创建成功", tag);
+    await this.git.pushTags("origin");
+    log.success("远程 tag 推送成功", tag);
   }
 
   async pullRemoteMasterAndBranch() {
