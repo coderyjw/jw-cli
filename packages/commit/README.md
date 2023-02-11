@@ -1,11 +1,3 @@
 # `commit`
 
-> TODO: description
-
-## Usage
-
-```
-const commit = require('commit');
-
-// TODO: DEMONSTRATE API
-```
+代码提交器

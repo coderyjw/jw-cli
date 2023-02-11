@@ -1,11 +1,2 @@
 # `clear`
-
-> TODO: description
-
-## Usage
-
-```
-const clear = require('clear');
-
-// TODO: DEMONSTRATE API
-```
+清除缓存

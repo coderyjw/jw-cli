@@ -1,11 +1,3 @@
 # `utils`
 
-> TODO: description
-
-## Usage
-
-```
-const utils = require('utils');
-
-// TODO: DEMONSTRATE API
-```
+jw-cli 脚手架工具包

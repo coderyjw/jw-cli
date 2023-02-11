@@ -1,11 +1,3 @@
 # `install`
 
-> TODO: description
-
-## Usage
-
-```
-const install = require('install');
-
-// TODO: DEMONSTRATE API
-```
+项目下载、安装依赖、启动项目

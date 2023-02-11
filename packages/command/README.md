@@ -1,11 +1,3 @@
 # `command`
 
-> TODO: description
-
-## Usage
-
-```
-const command = require('command');
-
-// TODO: DEMONSTRATE API
-```
+command 类封装
