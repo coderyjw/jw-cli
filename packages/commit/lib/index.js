@@ -154,20 +154,41 @@ pnpm-debug.log*
   // 4. 代码发布
   async publish() {
     await this.checkTag();
+    await this.checkoutBranch("master");
+    await this.mergeBranchToMaster();
+    await this.pushRemoteRepo("master");
+    await this.deleteLocalBranch();
+    await this.deleteRemoteBranch();
+  }
+
+  async deleteLocalBranch() {
+    log.info("开始删除本地分支", this.branch);
+    await this.git.deleteLocalBranch(this.branch);
+    log.success("删除本地分支成功", this.branch);
+  }
+
+  async deleteRemoteBranch() {
+    log.info("开始远程本地分支", this.branch);
+    await this.git.push(["origin", "--delete", this.branch]);
+    log.success("删除远程分支成功", this.branch);
+  }
+
+  async mergeBranchToMaster() {
+    log.info("开始合并代码", `[${this.branch}] -> [master]`);
+    await this.git.mergeFromTo(this.branch, "master");
+    log.success("代码合并成功", `[${this.branch}] -> [master]`);
   }
 
   async checkTag() {
     log.info("远程 tag 列表");
     const tag = `release/${this.version}`;
     const tagList = await this.getRemoteBranchList("release");
-    console.log(tag, tagList);
     if (tagList.includes(this.version)) {
       log.info("远程 tag 已存在", tag);
       await this.git.push(["origin", `:refs/tags/${tag}`]);
       log.success("远程 tag 已删除", tag);
     }
     const localTagList = await this.git.tags();
-    console.log(localTagList);
     if (localTagList.all.includes(tag)) {
       log.info("本地 tag 已存在", tag);
       await this.git.tag(["-d", tag]);
