@@ -2,6 +2,7 @@ import fse from "fs-extra";
 import fs, { stat } from "node:fs";
 import path from "node:path";
 import SimpleGit from "simple-git";
+import semver from "semver";
 
 import Command from "@yejiwei/command";
 import { log, makeInput } from "@yejiwei/utils";
@@ -28,6 +29,8 @@ class CommitCommand extends Command {
     await this.createRemoteRepo();
     // 2：git本地初始化
     await this.initLocal();
+    // 3. 代码自动化提交
+    await this.commit();
   }
 
   async createRemoteRepo() {
@@ -155,6 +158,49 @@ pnpm-debug.log*
     log.info(`推送代码至远程 ${branchName}`);
     await this.git.push("origin", branchName);
     log.success("推送代码成功");
+  }
+
+  async commit() {
+    // 自动生成版本号
+
+    await this.getCorrectVersion();
+  }
+
+  async getCorrectVersion() {
+    log.info("获取代码分支");
+    const remoteBranchList = await this.getRemoteBranchList("release");
+    console.log(remoteBranchList);
+  }
+
+  async getRemoteBranchList(type) {
+    const remoteList = await this.git.listRemote(["--refs"]);
+    let registerModule;
+    let reg;
+    if (type === "release") {
+      // release 0.0.1
+      reg = /.+?refs\/tags\/release\/(\d+\.\d+\.\d+)/g;
+    } else {
+      // dev 0.0.1
+      reg = /.+?refs\/tags\/dev\/(\d+\.\d+\.\d+)/g;
+    }
+
+    return remoteList
+      .split("\n")
+      .map((remote) => {
+        const match = reg.exec(remote);
+        reg.lastIndex = 0;
+        if (match && semver.valid(match[1])) {
+          return match[1];
+        }
+      })
+      .filter((_) => _)
+      .sort((a, b) => {
+        if (semver.lte(b, a)) {
+          if (a === b) return 0;
+          return -1;
+        }
+        return 1;
+      });
   }
 }
 
